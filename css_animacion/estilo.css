@@ -1,0 +1,42 @@
+
+.miFondo
+{
+position: absolute;
+height: 400px;
+width: 600px;
+z-index: 1;
+}
+.tamAstro1
+{
+height: 50px;
+width: 50px;
+}
+
+.astro1
+{
+position: absolute;
+z-index: 4;
+left: 200px;
+top: 100px;
+}
+
+.rocket1
+{
+background: url('imagenes/rocket.png');
+background-repeat: no-repeat;
+z-index: 5;
+position: relative;
+height: 50px;
+width: 50px;
+left: 150px;
+top:250px;
+animation: miAni1 4s;
+animation-timing-function: ease-in-out;
+animation-delay: 2s;
+}
+
+@keyframes miAni1
+{
+from {left: 150px;}
+to {left: 350px;top:350px;}
+}
