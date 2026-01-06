@@ -92,18 +92,16 @@ class MainScene extends Phaser.Scene {
     }
 }
 
-// Configuración del juego
 const config = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    physics: {
-        default: 'arcade',
-        arcade: {
-            debug: false, // Cambiar a true si deseas ver los límites de los objetos
-        },
+    width: window.innerWidth,
+    height: window.innerHeight,
+    parent: 'game-container', // opcional
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH
     },
-    scene: MainScene,
+    scene: [MainScene]
 };
 
 // Crear el juego
