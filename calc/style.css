@@ -13,8 +13,7 @@ html, body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Roboto", sans-serif;
 }
 
-/* ---------- CONTENEDOR PRINCIPAL ---------- */
-.calculator {
+#app {
   width: 100%;
   height: 100%;
   display: flex;
@@ -26,7 +25,7 @@ html, body {
 #display {
   height: 28vh;
   display: flex;
-  align-items: flex-end;   /* baja el resultado */
+  align-items: flex-end;       /* baja el número */
   justify-content: flex-end;
   padding: 20px;
   font-size: 3.2rem;
@@ -60,7 +59,7 @@ button:active {
   filter: brightness(1.2);
 }
 
-/* ---------- TIPOS DE BOTÓN ---------- */
+/* ---------- TIPOS ---------- */
 button.operator {
   background: #ff9500;
   color: white;
@@ -84,7 +83,7 @@ button.empty {
   filter: invert(1);
 }
 
-/* ---------- OCULTAR SCROLL DISPLAY ---------- */
+/* ---------- SCROLL DISPLAY ---------- */
 #display::-webkit-scrollbar {
   height: 0;
 }
