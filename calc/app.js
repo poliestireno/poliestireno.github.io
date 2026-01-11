@@ -3,20 +3,6 @@ const display = document.getElementById("display");
 let current = "";       
 let memoryValue = null;
 
-function adjustCalculatorHeight() {
-  const calc = document.querySelector('.calculator');
-  if (calc) {
-    calc.style.height = window.innerHeight + 'px';
-  }
-}
-
-// Ejecutar al cargar
-adjustCalculatorHeight();
-
-// Ejecutar al rotar o cambiar tamaño
-window.addEventListener('resize', adjustCalculatorHeight);
-
-
 /* ---------- AJUSTAR ALTURA REAL PWA ---------- */
 function setAppHeight() {
   document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
