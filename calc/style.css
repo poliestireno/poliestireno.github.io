@@ -11,20 +11,21 @@ html, body {
   height: 100%;
   background: black;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Roboto", sans-serif;
+  overflow: hidden; /* Evitar scroll no deseado */
 }
 
 /* ---------- CONTENEDOR ---------- */
 .calculator {
-  width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  height: 100%;
   background: black;
 }
 
 /* ---------- DISPLAY ---------- */
 #display {
-  height: 32vh;
+  flex: 0 0 auto; /* Ocupa solo lo necesario */
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -32,12 +33,12 @@ html, body {
   font-size: clamp(3rem, 8vw, 3.8rem);
   color: white;
   background: black;
+  overflow-x: auto;
 }
-
 
 /* ---------- BOTONES ---------- */
 .buttons {
-  flex: 1;
+  flex: 1 1 auto; /* Ocupa el resto del espacio */
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(5, 1fr);
@@ -45,6 +46,7 @@ html, body {
   padding: 14px;
 }
 
+/* Botón base */
 button {
   border: none;
   border-radius: 50%;
@@ -54,14 +56,14 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
+  aspect-ratio: 1 / 1; /* Mantiene el botón redondo */
 }
-
 
 button:active {
   filter: brightness(1.15);
 }
 
-/* ---------- TIPOS ---------- */
+/* ---------- TIPOS DE BOTÓN ---------- */
 button.operator {
   background: #ff9500;
   color: white;
@@ -72,7 +74,6 @@ button.function {
   background: #a5a5a5;
   color: black;
 }
-
 
 button.equals {
   background: #ff9500;
@@ -90,8 +91,7 @@ button.empty {
   filter: invert(1);
 }
 
-
 /* ---------- DISPLAY SCROLL ---------- */
 #display::-webkit-scrollbar {
   height: 0;
-}
+} 
