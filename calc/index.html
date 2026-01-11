@@ -15,7 +15,13 @@
     <!-- Fila 1 -->
     <button class="op" onclick="press('C')">C</button>
     <button class="op" onclick="press('DEL')">DEL</button>
-    <button class="op" onclick="press('%')">%</button>
+    <button
+  class="btn operator"
+  onmousedown="percentTimer = setTimeout(percentLongPress, 600)"
+  onmouseup="clearTimeout(percentTimer); percentPress()"
+  ontouchstart="percentTimer = setTimeout(percentLongPress, 600)"
+  ontouchend="clearTimeout(percentTimer); percentPress()"
+>%</button>
     <button class="op" onclick="press('/')">÷</button>
 
     <!-- Fila 2 -->
