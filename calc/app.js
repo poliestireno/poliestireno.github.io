@@ -43,13 +43,6 @@ function press(value) {
   }
 
   if (value === '^') {
-    // para mostrar exponente como ^ pero almacenar **
-    current += "**";
-    updateDisplay(current.replace(/\*\*/g, '^'));
-    return;
-  }
-
-  if (value === '±') {
     if (!current) return;
     // Intentar cambiar signo del último número
     const match = current.match(/([+-]?\d+\.?\d*)$/);
