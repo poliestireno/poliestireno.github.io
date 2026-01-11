@@ -9,8 +9,8 @@
   --btn-op-pressed: #ff9800;
   --btn-equals-pressed: #66bb6a;
   --display-color: #ffffff;
-  --gap: 16px;
-  --btn-size: 88px;
+  --gap: 12px;
+  --btn-size: 80px;
 }
 
 * {
@@ -30,7 +30,7 @@ body {
 
 .calculator {
   width: 100%;
-  max-width: 412px;
+  max-width: 400px;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -39,9 +39,9 @@ body {
 
 #display {
   color: var(--display-color);
-  font-size: 64px;
+  font-size: 48px;
   text-align: right;
-  padding: 48px 24px 24px;
+  padding: 40px 20px 20px;
   overflow-x: auto;
   font-weight: 400;
   line-height: 1.2;
@@ -51,7 +51,7 @@ body {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: var(--gap);
-  padding: 20px;
+  padding: 16px;
 }
 
 button {
@@ -59,18 +59,18 @@ button {
   color: white;
   border: none;
   border-radius: 50%;
-  font-size: 28px;
+  font-size: 24px;
   height: var(--btn-size);
   width: var(--btn-size);
   transition: background 0.08s, transform 0.08s;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
   cursor: pointer;
 }
 
 button:active {
   background: var(--btn-pressed);
   transform: scale(0.95);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 button.op {
@@ -81,13 +81,7 @@ button.op:active {
   background: var(--btn-op-pressed);
 }
 
-button.zero {
-  grid-column: span 2;
-  border-radius: calc(var(--btn-size) / 2);
-}
-
 button.equals {
-  grid-row: span 2;
   background: var(--btn-equals);
 }
 

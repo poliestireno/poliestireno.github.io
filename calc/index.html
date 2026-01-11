@@ -2,41 +2,52 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0,
-viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Calculadora Pixel Perfect</title>
-<link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="/calc/manifest.json">
+<link rel="stylesheet" href="/calc/style.css">
 <meta name="theme-color" content="#1c1c1c">
 </head>
 <body>
 <div class="calculator">
-<div id="display">0</div>
-<div class="buttons">
-<button onclick="press('7')">7</button>
-<button onclick="press('8')">8</button>
-<button onclick="press('9')">9</button>
-<button class="op" onclick="press('%')">%</button>
-<button onclick="press('4')">4</button>
-<button onclick="press('5')">5</button>
-<button onclick="press('6')">6</button>
-<button class="op" onclick="press('/')">÷</button>
-<button onclick="press('1')">1</button>
-<button onclick="press('2')">2</button>
-<button onclick="press('3')">3</button>
-<button class="op" onclick="press('*')">×</button>
-<button class="zero" onclick="press('0')">0</button>
-<button onclick="press('.')">.</button>
-<button class="op" onclick="press('-')">−</button>
-<button class="op equals" onclick="press('=')">=</button>
-<button class="op" onclick="press('+')">+</button>
+  <div id="display">0</div>
+  <div class="buttons">
+    <!-- Fila 1 -->
+    <button class="op" onclick="press('C')">C</button>
+    <button class="op" onclick="press('DEL')">DEL</button>
+    <button class="op" onclick="press('%')">%</button>
+    <button class="op" onclick="press('/')">÷</button>
+
+    <!-- Fila 2 -->
+    <button onclick="press('7')">7</button>
+    <button onclick="press('8')">8</button>
+    <button onclick="press('9')">9</button>
+    <button class="op" onclick="press('*')">×</button>
+
+    <!-- Fila 3 -->
+    <button onclick="press('4')">4</button>
+    <button onclick="press('5')">5</button>
+    <button onclick="press('6')">6</button>
+    <button class="op" onclick="press('-')">−</button>
+
+    <!-- Fila 4 -->
+    <button onclick="press('1')">1</button>
+    <button onclick="press('2')">2</button>
+    <button onclick="press('3')">3</button>
+    <button class="op" onclick="press('+')">+</button>
+
+    <!-- Fila 5 -->
+    <button class="op" onclick="press('^')">^</button>
+    <button onclick="press('0')">0</button>
+    <button onclick="press('.')">.</button>
+    <button class="op equals" onclick="press('=')">=</button>
+  </div>
 </div>
-</div>
-<script src="app.js"></script>
+<script src="/calc/app.js"></script>
 <script>
 if ('serviceWorker' in navigator) {
-navigator.serviceWorker.register('sw.js');
+  navigator.serviceWorker.register('/calc/sw.js');
 }
-1
 </script>
 </body>
+</html>
