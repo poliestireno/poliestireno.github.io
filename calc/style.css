@@ -29,7 +29,7 @@ html, body {
   align-items: center;             /* centrado vertical */
   justify-content: flex-end;
   padding: clamp(20px, 5vw, 28px);
-  font-size: clamp(3.8rem, 9vw, 4.2rem);  /* más grande */
+  font-size: clamp(3.5rem, 8vw, 3.8rem);  /* un poco más pequeño */
   color: white;
   background: black;
   overflow-x: auto;
@@ -49,7 +49,7 @@ html, body {
 button {
   border: none;
   border-radius: 50%;                         /* círculo perfecto */
-  font-size: clamp(1.9rem, 5vw, 2.2rem);      /* texto más grande */
+  font-size: clamp(2rem, 5.5vw, 2.4rem);      /* un poco más grande que antes */
   background: #333;
   color: white;
   display: flex;
@@ -60,7 +60,6 @@ button {
   max-width: 100%;
 }
 
-/* Botón presionado */
 button:active {
   filter: brightness(1.15);
 }
@@ -69,14 +68,14 @@ button:active {
 button.operator {
   background: #ff9500;
   color: white;
-  font-size: clamp(2rem, 5vw, 2.4rem);
+  font-size: clamp(2.2rem, 6vw, 2.6rem);  /* más grandes */
 }
 
 /* ---------- FUNCIONES ---------- */
 button.function {
   background: #a5a5a5;
   color: white;                   /* AC y % letra blanca */
-  font-size: clamp(1.9rem, 5vw, 2.2rem);
+  font-size: clamp(2rem, 5.5vw, 2.4rem);   /* ligeramente más grande */
 }
 
 /* ---------- EQUALS ---------- */
@@ -92,8 +91,8 @@ button.empty {
 
 /* ---------- ICONOS ---------- */
 .icon {
-  width: clamp(28px, 7vw, 36px);     /* más grandes */
-  height: clamp(28px, 7vw, 36px);
+  width: clamp(32px, 8vw, 40px);     /* más grandes */
+  height: clamp(32px, 8vw, 40px);
   filter: invert(1);
 }
 
