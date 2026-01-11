@@ -1,9 +1,20 @@
 const display = document.getElementById("display");
 
-let current = "";       // expresión completa
-let memoryValue = null; // número guardado con %
+let current = "";       
+let memoryValue = null;
 
-/* ---------- BOTONES NORMALES ---------- */
+/* ---------- UTIL ---------- */
+function formatWithDots(value) {
+  return value
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+function updateDisplay(text) {
+  display.innerText = formatWithDots(text);
+}
+
+/* ---------- BOTONES ---------- */
 function press(value) {
   if (value === 'C') {
     current = "";
@@ -32,7 +43,7 @@ function press(value) {
   updateDisplay(current.replace(/\*\*/g, '^'));
 }
 
-/* ---------- CÁLCULO ---------- */
+/* ---------- CALCULAR ---------- */
 function calculate() {
   if (!current) return;
 
@@ -44,11 +55,6 @@ function calculate() {
     updateDisplay("Error");
     current = "";
   }
-}
-
-/* ---------- DISPLAY ---------- */
-function updateDisplay(text) {
-  display.innerText = text;
 }
 
 /* ---------- % PULSACIÓN CORTA ---------- */
@@ -63,7 +69,15 @@ function percentPress() {
 /* ---------- % PULSACIÓN LARGA ---------- */
 function percentLongPress() {
   const val = prompt("Introduce un número:");
-  if (val !== null && val.trim() !== "" && !isNaN(val)) {
+
+  // Si se pulsa cancelar o se deja vacío → borrar memoria
+  if (val === null || val.trim() === "") {
+    memoryValue = null;
+    updateDisplay(getDateNumber());
+    return;
+  }
+
+  if (!isNaN(val)) {
     memoryValue = val.trim();
     updateDisplay(memoryValue);
   }
