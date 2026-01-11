@@ -3,8 +3,17 @@ const display = document.getElementById("display");
 let current = "";       
 let memoryValue = null;
 
+/* ---------- AJUSTAR ALTURA REAL PWA ---------- */
+function setAppHeight() {
+  document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+}
+setAppHeight();
+window.addEventListener('resize', setAppHeight);
+
 /* ---------- UTIL ---------- */
 function formatWithDots(value) {
+  // Solo formatear números puros
+  if (!value || isNaN(Number(value.replace(/\./g, '')))) return value;
   return value
     .toString()
     .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -16,7 +25,7 @@ function updateDisplay(text) {
 
 /* ---------- BOTONES ---------- */
 function press(value) {
-  if (value === 'C') {
+  if (value === 'C') {  // AC
     current = "";
     updateDisplay("0");
     return;
@@ -34,8 +43,22 @@ function press(value) {
   }
 
   if (value === '^') {
+    // para mostrar exponente como ^ pero almacenar **
     current += "**";
     updateDisplay(current.replace(/\*\*/g, '^'));
+    return;
+  }
+
+  if (value === '±') {
+    if (!current) return;
+    // Intentar cambiar signo del último número
+    const match = current.match(/([+-]?\d+\.?\d*)$/);
+    if (match) {
+      const num = match[0];
+      const neg = num.startsWith('-') ? num.slice(1) : '-' + num;
+      current = current.slice(0, -num.length) + neg;
+      updateDisplay(current.replace(/\*\*/g, '^'));
+    }
     return;
   }
 
@@ -48,6 +71,7 @@ function calculate() {
   if (!current) return;
 
   try {
+    // eval para operaciones básicas
     let result = eval(current);
     current = result.toString();
     updateDisplay(current);
