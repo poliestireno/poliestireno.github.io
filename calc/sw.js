@@ -1,4 +1,4 @@
-const CACHE_NAME = 'calc-v13';
+const CACHE_NAME = 'calc-v14';
 
 const FILES_TO_CACHE = [
   '/calc/',

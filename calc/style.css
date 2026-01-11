@@ -1,4 +1,3 @@
-/* --------------------------- RESET --------------------------- */
 * {
   margin: 0;
   padding: 0;
@@ -12,54 +11,50 @@ html, body {
   height: 100%;
   background: black;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Roboto", sans-serif;
-  overflow: hidden;
 }
 
 /* ---------- CALCULADORA ---------- */
 .calculator {
-  display: flex;
-  flex-direction: column;
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
   background: black;
 }
 
 /* ---------- DISPLAY ---------- */
 #display {
-  flex: 0 0 auto;
+  height: 32vh;
   display: flex;
-  align-items: center;        /* centrado vertical */
+  align-items: center;             
   justify-content: flex-end;
   padding: clamp(18px, 4vw, 26px);
-  font-size: clamp(3rem, 8vw, 3.8rem); /* ligeramente más pequeño que los botones */
+  font-size: clamp(3rem, 8vw, 3.8rem);
   color: white;
   background: black;
-  overflow-x: auto;
 }
 
 /* ---------- GRID BOTONES ---------- */
 .buttons {
-  flex: 1 1 auto;
+  flex: 1;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 1fr;       /* filas cuadradas según ancho disponible */
-  gap: 10px;
-  padding: 10px;
+  grid-template-rows: repeat(5, 1fr);
+  gap: 12px;
+  padding: 14px;
 }
 
 /* ---------- BOTÓN BASE ---------- */
 button {
   border: none;
-  border-radius: 50%;       /* círculo perfecto */
+  border-radius: 50%;
   font-size: clamp(1.7rem, 5vw, 2.1rem);
   background: #333;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 1 / 1;      /* forzar cuadrado perfecto */
-  width: 100%;
-  max-height: 100%;          /* evita estirado vertical */
+  aspect-ratio: 1 / 1;  /* Mantener círculos perfectos */
 }
 
 button:active {
@@ -76,7 +71,7 @@ button.operator {
 /* ---------- FUNCIONES ---------- */
 button.function {
   background: #a5a5a5;
-  color: white;             /* AC y % letra blanca */
+  color: white;   /* AC y % letra blanca */
   font-size: clamp(1.8rem, 5vw, 2.2rem);
 }
 
@@ -84,12 +79,6 @@ button.function {
 button.equals {
   background: #ff9500;
   color: white;
-  font-size: clamp(1.8rem, 5vw, 2.2rem);
-}
-
-/* ---------- BOTONES VACÍOS ---------- */
-button.empty {
-  background: transparent;
 }
 
 /* ---------- ICONOS ---------- */
