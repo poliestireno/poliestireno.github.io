@@ -7,14 +7,9 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ---------- ALTURA REAL APP ---------- */
-:root {
-  --app-height: 100vh;
-}
-
 html, body {
   width: 100%;
-  height: var(--app-height);
+  height: 100%;
   background: black;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Roboto", sans-serif;
 }
@@ -22,7 +17,7 @@ html, body {
 /* ---------- CONTENEDOR PRINCIPAL ---------- */
 .calculator {
   width: 100%;
-  height: var(--app-height);
+  height: 100%;
   display: flex;
   flex-direction: column;
   background: black;
@@ -32,10 +27,10 @@ html, body {
 #display {
   height: 28vh;
   display: flex;
-  align-items: flex-end;
+  align-items: flex-end;   /* baja el resultado */
   justify-content: flex-end;
-  padding: 4vw;
-  font-size: 3.2rem;
+  padding: 20px;
+  font-size: 3.5rem;       /* un poco más grande que antes */
   color: white;
   background: black;
   overflow-x: auto;
@@ -47,32 +42,25 @@ html, body {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(5, 1fr);
-  gap: 3vw; /* se adapta al ancho */
-  padding: 3vw;
+  gap: 12px;
+  padding: 12px;
 }
 
 /* ---------- BOTÓN BASE ---------- */
 button {
   border: none;
-  border-radius: 50%;
-  font-size: 1.8rem;
+  border-radius: 50%;           /* círculos perfectos */
+  font-size: 2rem;              /* números más grandes */
   background: #333;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 1 / 1;          /* círculo perfecto */
+  aspect-ratio: 1 / 1;          /* asegura cuadrado perfecto */
   width: 100%;
   max-width: 100%;
 }
 
-/* Evitar que el contenido interno rompa el tamaño */
-button > img.icon {
-  max-width: 70%;
-  max-height: 70%;
-}
-
-/* ---------- ESTADO PRESIONADO ---------- */
 button:active {
   filter: brightness(1.2);
 }
@@ -81,20 +69,14 @@ button:active {
 button.operator {
   background: #ff9500;
   color: white;
-  font-size: 2rem;
+  font-size: 2.2rem;            /* operadores más grandes */
 }
 
 /* ---------- FUNCIONES ---------- */
 button.function {
   background: #a5a5a5;
   color: white;                 /* AC y % letra blanca */
-  font-size: 1.8rem;
-}
-
-/* ---------- BOTÓN IGUAL ---------- */
-button.equals {
-  background: #ff9500;
-  color: white;
+  font-size: 2rem;              /* números más grandes también */
 }
 
 /* ---------- BOTÓN VACÍO ---------- */
@@ -104,7 +86,7 @@ button.empty {
 
 /* ---------- ICONOS ---------- */
 .icon {
-  width: 36px;      /* iconos grandes */
+  width: 36px;                   /* iconos más grandes */
   height: 36px;
   filter: invert(1);
 }
