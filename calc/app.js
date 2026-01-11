@@ -1,7 +1,7 @@
 const display = document.getElementById("display");
-let current = "";   // Valor que se está escribiendo
-let previous = "";  // Valor previo (para operaciones)
-let operator = null; // Operador actual
+let current = "";
+let previous = "";
+let operator = null;
 
 function press(value) {
   if (value === 'C') {
@@ -34,7 +34,6 @@ function press(value) {
     return;
   }
 
-  // Si es operador + - * /
   if (['+', '-', '*', '/'].includes(value)) {
     if (current === "" && previous === "") return;
     if (current !== "") {
@@ -49,7 +48,6 @@ function press(value) {
     return;
   }
 
-  // Añadir número o punto
   current += value;
   updateDisplay(current);
 }
@@ -85,16 +83,30 @@ function updateDisplay(text) {
   display.innerText = text;
 }
 
+// Nueva versión de showDateTime con puntos cada 3 dígitos y sin segundos
 function showDateTime() {
   const now = new Date();
-  const y = now.getFullYear();
-  const m = String(now.getMonth()+1).padStart(2,'0');
-  const d = String(now.getDate()).padStart(2,'0');
-  const h = String(now.getHours()).padStart(2,'0');
-  const min = String(now.getMinutes()).padStart(2,'0');
-  const sec = String(now.getSeconds()).padStart(2,'0');
+  const y = now.getFullYear();              // 4 dígitos
+  const m = String(now.getMonth() + 1).padStart(2,'0'); // 2 dígitos
+  const d = String(now.getDate()).padStart(2,'0');      // 2 dígitos
+  const h = String(now.getHours()).padStart(2,'0');     // 2 dígitos
+  const min = String(now.getMinutes()).padStart(2,'0'); // 2 dígitos
 
-  updateDisplay(`${y}${m}${d}${h}${min}${sec}`);
+  // Concatenamos todo como un número
+  let numStr = `${y}${m}${d}${h}${min}`;
+
+  // Insertar puntos cada 3 dígitos desde la izquierda
+  let formatted = '';
+  let count = 0;
+  for (let i = numStr.length - 1; i >= 0; i--) {
+    formatted = numStr[i] + formatted;
+    count++;
+    if (count % 3 === 0 && i !== 0) {
+      formatted = '.' + formatted;
+    }
+  }
+
+  updateDisplay(formatted);
   current = "";
   previous = "";
   operator = null;
