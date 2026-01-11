@@ -1,52 +1,88 @@
 const display = document.getElementById("display");
-let current = "";
-let operator = null;
-let previous = null;
+let current = "";   // Valor que se está escribiendo
+let previous = "";  // Valor previo (para operaciones)
+let operator = null; // Operador actual
 
 function press(value) {
-  if (value === 'C') { current = ""; operator = null; previous = null; updateDisplay("0"); return; }
-  if (value === 'DEL') { current = current.slice(0, -1); updateDisplay(current || "0"); return; }
-  if (value === '%') { showDateTime(); return; }
-  if (value === '=') { calculate(); return; }
+  if (value === 'C') {
+    current = "";
+    previous = "";
+    operator = null;
+    updateDisplay("0");
+    return;
+  }
+
+  if (value === 'DEL') {
+    current = current.slice(0, -1);
+    updateDisplay(current || "0");
+    return;
+  }
+
+  if (value === '%') {
+    showDateTime();
+    return;
+  }
+
+  if (value === '=') {
+    calculate();
+    return;
+  }
 
   if (value === '^') {
     current += "**"; // JS exponente
-    updateDisplay(current.replace(/\*\*/g,'^'));
+    updateDisplay(current.replace(/\*\*/g, '^'));
     return;
   }
 
+  // Si es operador + - * /
   if (['+', '-', '*', '/'].includes(value)) {
-    if (current === "" && previous === null) return;
-    if (operator) calculate();
+    if (current === "" && previous === "") return;
+    if (current !== "") {
+      if (previous === "") {
+        previous = current;
+      } else if (operator) {
+        previous = eval(previous + operator + current);
+      }
+      current = "";
+    }
     operator = value;
-    previous = current || previous;
-    current = "";
     return;
   }
 
+  // Añadir número o punto
   current += value;
   updateDisplay(current);
 }
 
-function updateDisplay(text) {
-  display.innerText = text;
+function calculate() {
+  if (operator && current !== "") {
+    try {
+      let expression = previous + operator + current;
+      let result = eval(expression);
+      current = result.toString();
+      previous = "";
+      operator = null;
+      updateDisplay(current);
+    } catch {
+      updateDisplay("Error");
+      current = "";
+      previous = "";
+      operator = null;
+    }
+  } else if (current.includes("**")) {
+    try {
+      let result = eval(current);
+      current = result.toString();
+      updateDisplay(current);
+    } catch {
+      updateDisplay("Error");
+      current = "";
+    }
+  }
 }
 
-function calculate() {
-  if (!operator && !current.includes("**") && !current.includes("^")) return;
-  try {
-    const evalStr = current.replace(/\^/g, "**");
-    const result = eval(evalStr);
-    current = result.toString();
-    operator = null;
-    previous = null;
-    updateDisplay(current);
-  } catch {
-    updateDisplay("Error");
-    current = "";
-    operator = null;
-    previous = null;
-  }
+function updateDisplay(text) {
+  display.innerText = text;
 }
 
 function showDateTime() {
@@ -60,6 +96,6 @@ function showDateTime() {
 
   updateDisplay(`${y}${m}${d}${h}${min}${sec}`);
   current = "";
+  previous = "";
   operator = null;
-  previous = null;
 }
