@@ -12,7 +12,6 @@ window.addEventListener('resize', setAppHeight);
 
 /* ---------- UTIL ---------- */
 function formatWithDots(value) {
-  // Solo formatear números puros
   if (!value || isNaN(Number(value.replace(/\./g, '')))) return value;
   return value
     .toString()
@@ -44,7 +43,6 @@ function press(value) {
 
   if (value === '^') {
     if (!current) return;
-    // Intentar cambiar signo del último número
     const match = current.match(/([+-]?\d+\.?\d*)$/);
     if (match) {
       const num = match[0];
@@ -64,7 +62,6 @@ function calculate() {
   if (!current) return;
 
   try {
-    // eval para operaciones básicas
     let result = eval(current);
     current = result.toString();
     updateDisplay(current);
@@ -87,7 +84,6 @@ function percentPress() {
 function percentLongPress() {
   const val = prompt("Introduce un número:");
 
-  // Si se pulsa cancelar o se deja vacío → borrar memoria
   if (val === null || val.trim() === "") {
     memoryValue = null;
     updateDisplay(getDateNumber());
