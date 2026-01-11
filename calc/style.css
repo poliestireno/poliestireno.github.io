@@ -1,3 +1,4 @@
+/* --------------------------- RESET --------------------------- */
 * {
   margin: 0;
   padding: 0;
@@ -11,10 +12,10 @@ html, body {
   height: 100%;
   background: black;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Roboto", sans-serif;
-  overflow: hidden; /* Evitar scroll no deseado */
+  overflow: hidden;
 }
 
-/* ---------- CONTENEDOR ---------- */
+/* ---------- CALCULADORA ---------- */
 .calculator {
   display: flex;
   flex-direction: column;
@@ -25,73 +26,80 @@ html, body {
 
 /* ---------- DISPLAY ---------- */
 #display {
-  flex: 0 0 auto; /* Ocupa solo lo necesario */
+  flex: 0 0 auto;
   display: flex;
-  align-items: center;
+  align-items: center;        /* centrado vertical */
   justify-content: flex-end;
   padding: clamp(18px, 4vw, 26px);
-  font-size: clamp(3rem, 8vw, 3.8rem);
+  font-size: clamp(3rem, 8vw, 3.8rem); /* ligeramente más pequeño que los botones */
   color: white;
   background: black;
   overflow-x: auto;
 }
 
-/* ---------- BOTONES ---------- */
+/* ---------- GRID BOTONES ---------- */
 .buttons {
-  flex: 1 1 auto; /* Ocupa el resto del espacio */
+  flex: 1 1 auto;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(5, 1fr);
-  gap: 12px;
-  padding: 14px;
+  grid-auto-rows: 1fr;       /* filas cuadradas según ancho disponible */
+  gap: 10px;
+  padding: 10px;
 }
 
-/* Botón base */
+/* ---------- BOTÓN BASE ---------- */
 button {
   border: none;
-  border-radius: 50%;
+  border-radius: 50%;       /* círculo perfecto */
   font-size: clamp(1.7rem, 5vw, 2.1rem);
   background: #333;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 1 / 1; /* Mantiene el botón redondo */
+  aspect-ratio: 1 / 1;      /* forzar cuadrado perfecto */
+  width: 100%;
+  max-height: 100%;          /* evita estirado vertical */
 }
 
 button:active {
   filter: brightness(1.15);
 }
 
-/* ---------- TIPOS DE BOTÓN ---------- */
+/* ---------- OPERADORES ---------- */
 button.operator {
   background: #ff9500;
   color: white;
   font-size: clamp(1.8rem, 5vw, 2.2rem);
 }
 
+/* ---------- FUNCIONES ---------- */
 button.function {
   background: #a5a5a5;
-  color: black;
+  color: white;             /* AC y % letra blanca */
+  font-size: clamp(1.8rem, 5vw, 2.2rem);
 }
 
+/* ---------- BOTÓN IGUAL ---------- */
 button.equals {
   background: #ff9500;
   color: white;
+  font-size: clamp(1.8rem, 5vw, 2.2rem);
 }
 
+/* ---------- BOTONES VACÍOS ---------- */
 button.empty {
   background: transparent;
 }
 
 /* ---------- ICONOS ---------- */
 .icon {
-  width: clamp(24px, 6vw, 30px);
-  height: clamp(24px, 6vw, 30px);
+  width: clamp(32px, 8vw, 40px);
+  height: clamp(32px, 8vw, 40px);
   filter: invert(1);
 }
 
-/* ---------- DISPLAY SCROLL ---------- */
+/* ---------- OCULTAR SCROLL DISPLAY ---------- */
 #display::-webkit-scrollbar {
   height: 0;
 }
