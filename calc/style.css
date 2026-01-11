@@ -1,3 +1,4 @@
+/* --------------------------- RESET --------------------------- */
 * {
   margin: 0;
   padding: 0;
@@ -29,7 +30,7 @@ html, body {
   align-items: flex-end;   /* baja el resultado */
   justify-content: flex-end;
   padding: 20px;
-  font-size: 3.2rem;
+  font-size: 3.5rem;       /* un poco más grande que antes */
   color: white;
   background: black;
   overflow-x: auto;
@@ -41,46 +42,52 @@ html, body {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(5, 1fr);
-  gap: 10px;
+  gap: 12px;
   padding: 12px;
 }
 
+/* ---------- BOTÓN BASE ---------- */
 button {
   border: none;
-  border-radius: 50%;
-  font-size: 1.7rem;
+  border-radius: 50%;           /* círculos perfectos */
+  font-size: 2rem;              /* números más grandes */
   background: #333;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
+  aspect-ratio: 1 / 1;          /* asegura cuadrado perfecto */
+  width: 100%;
+  max-width: 100%;
 }
 
 button:active {
   filter: brightness(1.2);
 }
 
-/* ---------- TIPOS DE BOTÓN ---------- */
+/* ---------- OPERADORES ---------- */
 button.operator {
   background: #ff9500;
   color: white;
-  font-size: 1.8rem;
+  font-size: 2.2rem;            /* operadores más grandes */
 }
 
+/* ---------- FUNCIONES ---------- */
 button.function {
   background: #a5a5a5;
-  color: black;
-  font-size: 1.6rem;
+  color: white;                 /* AC y % letra blanca */
+  font-size: 2rem;              /* números más grandes también */
 }
 
+/* ---------- BOTÓN VACÍO ---------- */
 button.empty {
   background: transparent;
 }
 
 /* ---------- ICONOS ---------- */
 .icon {
-  width: 26px;
-  height: 26px;
+  width: 36px;                   /* iconos más grandes */
+  height: 36px;
   filter: invert(1);
 }
 
