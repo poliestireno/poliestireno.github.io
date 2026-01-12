@@ -26,7 +26,7 @@ html, body {
 #display {
   height: 28vh;
   display: flex;
-  align-items: flex-end;       /* baja el número */
+  align-items: flex-end;
   justify-content: flex-end;
   padding: 20px;
   font-size: 3.2rem;
@@ -41,8 +41,8 @@ html, body {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(5, 1fr);
-  gap: 10px;
-  padding: 12px;
+  gap: 8px;          /* un poco menos para que no se salga */
+  padding: 8px;      /* menos padding total */
 }
 
 /* ---------- BOTÓN BASE ---------- */
@@ -55,10 +55,8 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 1 / 1;         /* cuadrado perfecto */
-  width: 100%;
-  max-width: 100%;
-  /* mini bombado vertical: padding interno superior e inferior */
+  aspect-ratio: 1 / 1;   /* cuadrado perfecto */
+  /* mini bombado vertical muy sutil */
   padding-top: 3%;
   padding-bottom: 3%;
 }
@@ -88,7 +86,7 @@ button.empty {
 
 /* ---------- ICONOS ---------- */
 .icon {
-  width: 32px;  /* más grandes */
+  width: 32px;   /* iconos grandes */
   height: 32px;
   filter: invert(1);
 }
