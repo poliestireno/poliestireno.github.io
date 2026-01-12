@@ -1,5 +1,3 @@
-
-
 * {
   margin: 0;
   padding: 0;
@@ -46,6 +44,7 @@ html, body {
   padding: 12px;
 }
 
+/* ---------- BOTÓN BASE ---------- */
 button {
   border: none;
   border-radius: 50%;
@@ -55,26 +54,30 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
+  aspect-ratio: 1 / 0.95;    /* mini bombado vertical sin tocar ancho */
+  width: 100%;
+  max-width: 100%;
 }
 
 button:active {
   filter: brightness(1.2);
 }
 
-/* ---------- TIPOS ---------- */
+/* ---------- OPERADORES ---------- */
 button.operator {
   background: #ff9500;
   color: white;
   font-size: 1.8rem;
 }
 
+/* ---------- FUNCIONES ---------- */
 button.function {
   background: #a5a5a5;
   color: white;  /* AC y % en blanco */
   font-size: 1.6rem;
 }
 
-
+/* ---------- BOTONES VACÍOS ---------- */
 button.empty {
   background: transparent;
 }
@@ -86,7 +89,7 @@ button.empty {
   filter: invert(1);
 }
 
-/* ---------- SCROLL DISPLAY ---------- */
+/* ---------- OCULTAR SCROLL DISPLAY ---------- */
 #display::-webkit-scrollbar {
   height: 0;
 }
