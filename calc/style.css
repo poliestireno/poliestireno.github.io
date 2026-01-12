@@ -6,22 +6,17 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ---------- ALTURA REAL APP ---------- */
-:root {
-  --app-height: 100vh;
-}
-
 html, body {
   width: 100%;
-  height: var(--app-height);
+  height: 100%;
   background: black;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Roboto", sans-serif;
 }
 
 /* ---------- CONTENEDOR ---------- */
-.calculator {
+#app {
   width: 100%;
-  height: var(--app-height);       /* altura real del móvil */
+  height: 100%;
   display: flex;
   flex-direction: column;
   background: black;
@@ -29,12 +24,12 @@ html, body {
 
 /* ---------- DISPLAY ---------- */
 #display {
-  height: 32vh;
+  height: 28vh;
   display: flex;
-  align-items: center;             
+  align-items: flex-end;       /* baja el número */
   justify-content: flex-end;
-  padding: clamp(20px, 5vw, 28px);
-  font-size: clamp(3.5rem, 8vw, 3.8rem);  
+  padding: 20px;
+  font-size: 3.2rem;
   color: white;
   background: black;
   overflow-x: auto;
@@ -46,47 +41,44 @@ html, body {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(5, 1fr);
-  gap: 12px;
-  padding: 14px;
+  gap: 10px;
+  padding: 12px;
 }
 
-/* Botón base */
+/* ---------- BOTÓN BASE ---------- */
 button {
   border: none;
   border-radius: 50%;
-  font-size: clamp(2rem, 5.5vw, 2.4rem);
+  font-size: 1.7rem;
   background: #333;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 1 / 1;       /* círculo perfecto */
+  aspect-ratio: 1 / 1;         /* cuadrado perfecto */
   width: 100%;
   max-width: 100%;
+  /* mini bombado vertical: padding interno superior e inferior */
+  padding-top: 3%;
+  padding-bottom: 3%;
 }
 
 button:active {
-  filter: brightness(1.15);
+  filter: brightness(1.2);
 }
 
 /* ---------- OPERADORES ---------- */
 button.operator {
   background: #ff9500;
   color: white;
-  font-size: clamp(2.3rem, 6vw, 2.7rem); /* un poco más grande */
+  font-size: 1.8rem;
 }
 
 /* ---------- FUNCIONES ---------- */
 button.function {
   background: #a5a5a5;
-  color: white;                   
-  font-size: clamp(2.1rem, 5.5vw, 2.5rem);   
-}
-
-/* ---------- EQUALS ---------- */
-button.equals {
-  background: #ff9500;
-  color: white;
+  color: white;  /* AC y % en blanco */
+  font-size: 1.6rem;
 }
 
 /* ---------- BOTONES VACÍOS ---------- */
@@ -96,8 +88,8 @@ button.empty {
 
 /* ---------- ICONOS ---------- */
 .icon {
-  width: clamp(36px, 9vw, 44px);     /* iconos más grandes */
-  height: clamp(36px, 9vw, 44px);
+  width: 32px;  /* más grandes */
+  height: 32px;
   filter: invert(1);
 }
 
