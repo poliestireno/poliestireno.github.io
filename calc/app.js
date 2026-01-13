@@ -115,13 +115,23 @@ function calculate() {
   try {
     current = current.replace(/x/g, "*");
     let result = eval(current);
-    current = result.toString();
+
+    // 🔢 Si tiene decimales, limitar a 9
+    if (!Number.isInteger(result)) {
+      result = Number(result.toFixed(9)).toString();
+    } else {
+      result = result.toString();
+    }
+
+    current = result;
     updateDisplay(current);
+
   } catch {
     updateDisplay("Error");
     current = "";
   }
 }
+
 
 /* ---------- % PULSACIÓN CORTA ---------- */
 function percentPress() {
