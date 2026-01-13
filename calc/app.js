@@ -144,7 +144,7 @@ function percentPress() {
 
 /* ---------- % PULSACIÓN LARGA % ---------- */
 function percentLongPress() {
-  const val = prompt("Introduce un número:");
+  const val = prompt("Introduce un número o deja vacio para fecha");
 
   if (val === null || val.trim() === "") {
     memoryValue = null;
