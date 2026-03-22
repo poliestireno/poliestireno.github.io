@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PALABROS V9 - Reinicio Seguro</title>
+    <title>PALABROS V10 - Análisis de Velocidad</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -57,8 +57,9 @@
         .summary-title { color: var(--primary); font-size: 1.5rem; font-weight: 900; text-align: center; margin-bottom: 20px; }
         .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .summary-stat { background: #0f172a; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid #334155; }
-        .summary-list { margin-top: 10px; list-style: none; font-size: 0.9rem; }
-        .summary-list li { padding: 8px 0; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; }
+        .summary-list { margin-top: 10px; list-style: none; font-size: 0.85rem; }
+        .summary-list li { padding: 8px 0; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+        .tag { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 900; }
 
         .c-rojo { background: var(--rojo); color: white; }
         .c-azul { background: var(--azul); color: white; }
@@ -117,19 +118,22 @@
 
 <div id="summary-screen">
     <div class="summary-card">
-        <div class="summary-title">¡PARTIDA FINALIZADA!</div>
+        <div class="summary-title">RESUMEN FINAL</div>
         <div class="summary-grid">
             <div class="summary-stat"><span class="stat-lbl">Puntos Finales</span><span id="final-score" class="stat-val">0</span></div>
             <div class="summary-stat"><span class="stat-lbl">Vocales/Cons.</span><span id="final-ling" class="stat-val">0/0</span></div>
         </div>
-        <h3 style="color:var(--primary)">Tus 6 Palabras:</h3>
+        <h3 style="color:var(--verde)">Análisis de Velocidad:</h3>
+        <ul id="final-speed-list" class="summary-list"></ul>
+        <hr>
+        <h3 style="color:var(--primary)">Palabras y Puntos:</h3>
         <ul id="final-words-list" class="summary-list"></ul>
         <hr>
         <h3 style="color:var(--rojo)">Uso de Comodines:</h3>
         <ul id="final-stars-list" class="summary-list"></ul>
         <hr>
-        <h3 style="color:var(--azul)">Tamaños:</h3>
-        <ul id="final-sizes-list" class="summary-list"></ul>
+        <h3 style="color:var(--azul)">Rendimiento (Velocidad):</h3>
+        <ul id="final-speed-stats" class="summary-list"></ul>
     </div>
     <button class="btn btn-main" onclick="resetGame()">NUEVA PARTIDA</button>
 </div>
@@ -147,12 +151,11 @@
         {c:['U','P','M','F','G','★']}, {c:['U','P','H','J','Ñ','★']}, {c:['U','U','V','Q','Z','★']}
     ];
 
-    let state = { score: 0, round: 1, activeDiceData: [], wordStack: [], startTime: 0, timer: null, history: { words: [], starLog: [], sizes: {} } };
+    let state = { score: 0, round: 1, activeDiceData: [], wordStack: [], startTime: 0, timer: null, 
+                  history: { words: [], starLog: [], sizes: {}, speedDetail: [] } };
 
     function confirmReset() {
-        if(confirm("¿Estás seguro de que quieres iniciar una nueva partida? Perderás el progreso actual.")) {
-            resetGame();
-        }
+        if(confirm("¿Estás seguro de iniciar una nueva partida?")) resetGame();
     }
 
     function handleAction() {
@@ -244,7 +247,15 @@
         if (state.wordStack.length < 2) return;
         clearInterval(state.timer);
         const time = Math.floor((Date.now() - state.startTime) / 1000);
-        let pVel = (time < 10) ? parseInt(document.getElementById('v-10').value) : (time < 15 ? parseInt(document.getElementById('v-15').value) : (time < 20 ? parseInt(document.getElementById('v-20').value) : (time < 30 ? parseInt(document.getElementById('v-30').value) : 0)));
+        
+        let pVel = 0, tag = "Lento";
+        if (time < 10) { pVel = parseInt(document.getElementById('v-10').value); tag = "< 10s"; }
+        else if (time < 15) { pVel = parseInt(document.getElementById('v-15').value); tag = "< 15s"; }
+        else if (time < 20) { pVel = parseInt(document.getElementById('v-20').value); tag = "< 20s"; }
+        else if (time < 30) { pVel = parseInt(document.getElementById('v-30').value); tag = "< 30s"; }
+
+        state.history.speedDetail.push({ round: state.round, time: time, pts: pVel, tag: tag });
+
         let pLetras = state.wordStack.reduce((sum, item) => sum + state.activeDiceData[item.diceIdx].pts, 0);
         let pSex = (new Set(state.wordStack.map(i => i.diceIdx)).size === parseInt(document.getElementById('cfg-n-dice').value)) ? parseInt(document.getElementById('pts-sex').value) : 0;
         let pPab = (state.wordStack.length >= 10) ? parseInt(document.getElementById('pts-pab').value) : 0;
@@ -252,11 +263,9 @@
         const total = pVel + pLetras + pSex + pPab;
         state.score += total;
         state.history.words.push(state.wordStack.map(s => s.letra).join(''));
-        const len = state.wordStack.length;
-        state.history.sizes[len] = (state.history.sizes[len] || 0) + 1;
 
         const msg = document.getElementById('msg');
-        msg.innerHTML = `🔥 +${total} PUNTOS<br><small>Letras: ${pLetras} | Tiempo: ${pVel} ${pSex ? '| Sext!' : ''}${pPab ? ' | Pab!' : ''}</small>`;
+        msg.innerHTML = `🔥 +${total} PUNTOS<br><small>Letras: ${pLetras} | Tiempo: ${pVel} (${tag})</small>`;
         msg.style.display = "block";
         document.getElementById('ui-score').innerText = state.score;
 
@@ -270,13 +279,26 @@
         let v = 0, c = 0;
         state.history.words.join('').split('').forEach(char => "AEIOU".includes(char) ? v++ : c++);
         document.getElementById('final-ling').innerText = `${v}V / ${c}C`;
-        document.getElementById('final-words-list').innerHTML = state.history.words.map((w, i) => `<li><span>Ronda ${i+1}: <strong>${w}</strong></span> <span>${w.length} let.</span></li>`).join('');
-        document.getElementById('final-stars-list').innerHTML = state.history.starLog.length ? state.history.starLog.map(l => `<li><span>Comodín asignado a:</span> <strong>${l}</strong></li>`).join('') : "<li>No usaste comodines</li>";
-        document.getElementById('final-sizes-list').innerHTML = Object.entries(state.history.sizes).sort((a,b)=>b[0]-a[0]).map(([s,count]) => `<li><span>${s} letras:</span> <span>${count} vez</span></li>`).join('');
+
+        // Detalle de velocidad por ronda
+        document.getElementById('final-speed-list').innerHTML = state.history.speedDetail.map(s => 
+            `<li><span>R${s.round}: <strong>${s.time}s</strong></span> <span class="tag c-verde">${s.tag} (+${s.pts} pts)</span></li>`
+        ).join('');
+
+        // Estadística de posiciones
+        const counts = {};
+        state.history.speedDetail.forEach(s => counts[s.tag] = (counts[s.tag] || 0) + 1);
+        document.getElementById('final-speed-stats').innerHTML = Object.entries(counts).map(([tag, count]) => 
+            `<li><span>Posición ${tag}:</span> <strong>${count} veces</strong></li>`
+        ).join('');
+
+        document.getElementById('final-words-list').innerHTML = state.history.words.map((w, i) => `<li><span>R${i+1}: <strong>${w}</strong></span> <span>${w.length} let.</span></li>`).join('');
+        document.getElementById('final-stars-list').innerHTML = state.history.starLog.length ? state.history.starLog.map(l => `<li><span>★ →</span> <strong>${l}</strong></li>`).join('') : "<li>Sin comodines</li>";
     }
 
     function resetGame() {
-        state = { score: 0, round: 1, activeDiceData: [], wordStack: [], startTime: 0, timer: null, history: { words: [], starLog: [], sizes: {} } };
+        state = { score: 0, round: 1, activeDiceData: [], wordStack: [], startTime: 0, timer: null, 
+                  history: { words: [], starLog: [], sizes: {}, speedDetail: [] } };
         document.getElementById('ui-score').innerText = "0"; document.getElementById('ui-round').innerText = "1/6";
         document.getElementById('summary-screen').style.display = 'none';
         startRound();
