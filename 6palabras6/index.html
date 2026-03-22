@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PALABROS - El Juego de Dados Pro</title>
+    <title>PALABROS - El Juego de Dados Táctil</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -12,46 +12,47 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; touch-action: manipulation; }
         
-        /* Evitar scroll en el body para control total */
-        body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        /* Forzamos el body a ocupar el 100% de la altura visual sin scroll */
+        body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; height: 100vh; height: calc(var(--vh, 1vh) * 100); overflow: hidden; position: fixed; width: 100%; }
         
         /* HEADER FIJO */
-        header { width: 100%; padding: 12px; text-align: center; background: #1e293b; border-bottom: 3px solid var(--primary); z-index: 10; flex-shrink: 0; }
-        h1 { font-weight: 900; letter-spacing: 4px; font-size: 1.6rem; color: var(--primary); text-transform: uppercase; }
+        header { width: 100%; padding: 10px; text-align: center; background: #1e293b; border-bottom: 3px solid var(--primary); z-index: 10; flex-shrink: 0; }
+        h1 { font-weight: 900; letter-spacing: 4px; font-size: 1.5rem; color: var(--primary); text-transform: uppercase; }
 
-        /* PANEL CONFIG (Mejorado scroll) */
+        /* PANEL CONFIG (Scroll interno) */
         #config-panel { position: fixed; top: 0; right: -330px; width: 320px; height: 100%; background: var(--card-bg); z-index: 1000; padding: 20px; transition: 0.3s; overflow-y: auto; box-shadow: -10px 0 20px rgba(0,0,0,0.5); }
         #config-panel.open { right: 0; }
-        .config-btn { position: fixed; top: 12px; right: 12px; z-index: 1001; background: #1e293b; border: 1px solid var(--primary); border-radius: 50%; width: 45px; height: 45px; font-size: 20px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .config-btn { position: fixed; top: 10px; right: 10px; z-index: 1001; background: #1e293b; border: 1px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; font-size: 18px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
         
         .input-group { margin-bottom: 10px; }
-        label { display: block; font-size: 10px; color: var(--primary); margin-bottom: 2px; text-transform: uppercase; font-weight: 700; }
+        label { display: block; font-size: 9px; color: var(--primary); margin-bottom: 2px; text-transform: uppercase; font-weight: 700; }
         input, select { width: 100%; padding: 8px; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 8px; font-size: 0.9rem; }
         hr { border: 0; border-top: 1px solid #334155; margin: 15px 0; }
 
         /* STATS FIJAS */
-        .stats { display: flex; justify-content: space-around; width: 100%; background: var(--card-bg); padding: 8px; border-bottom: 1px solid #334155; flex-shrink: 0; }
+        .stats { display: flex; justify-content: space-around; width: 100%; background: var(--card-bg); padding: 8px; border-bottom: 1px solid #334155; flex-shrink: 0; z-index: 5; }
         .stat-box { text-align: center; }
         .stat-val { font-weight: 900; font-size: 1.1rem; display: block; color: var(--blanco); }
         .stat-lbl { font-size: 8px; color: #94a3b8; text-transform: uppercase; }
 
         /* AREA DE JUEGO PRINCIPAL CON FLEX */
-        #game-area { flex-grow: 1; width: 100%; max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; padding: 10px; overflow: hidden; }
+        #game-area { flex-grow: 1; width: 100%; max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; padding: 10px; overflow: hidden; position: relative; }
         
         /* PALABRA FIJA ARRIBA */
-        #display-word-container { width: 100%; flex-shrink: 0; margin-bottom: 10px; }
+        #display-word-container { width: 100%; flex-shrink: 0; margin-bottom: 10px; z-index: 5; }
         #display-word {
-            min-height: 60px; width: 100%; background: #020617; border: 2px solid #334155;
+            min-height: 55px; width: 100%; background: #020617; border: 2px solid #334155;
             border-radius: 12px; display: flex; align-items: center; justify-content: center;
             font-size: 1.8rem; font-weight: 900; color: var(--blanco); letter-spacing: 2px; text-transform: uppercase;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
         }
 
-        /* AREA DE DADOS CON SCROLL INTERNO */
-        #dice-scroll-area { flex-grow: 1; width: 100%; overflow-y: auto; padding: 5px; margin-bottom: 10px; border-radius: 12px; background: rgba(0,0,0,0.1); }
-        .dice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
+        /* AREA DE DADOS CON SCROLL INTERNO (Se lleva el espacio restante) */
+        #dice-scroll-area { flex-grow: 1; width: 100%; overflow-y: auto; padding: 5px; border-radius: 12px; background: rgba(0,0,0,0.1); -webkit-overflow-scrolling: touch; }
+        .dice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; padding-bottom: 10px; }
         
         @keyframes shake {
-            0% { transform: rotate(0deg); } 25% { transform: rotate(3deg); } 50% { transform: rotate(-3deg); } 75% { transform: rotate(3deg); } 100% { transform: rotate(0deg); }
+            0% { transform: rotate(0deg); } 25% { transform: rotate(2deg); } 50% { transform: rotate(-2deg); } 75% { transform: rotate(2deg); } 100% { transform: rotate(0deg); }
         }
         .shaking { animation: shake 0.3s ease-in-out; }
 
@@ -61,26 +62,30 @@
             cursor: pointer; user-select: none; transition: transform 0.1s;
         }
         .die:active { transform: scale(0.95) translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.4); }
-        .die.comodin { color: #ff0000; }
+        .die.comodin { color: #ff0000; text-shadow: 0 0 5px rgba(255,0,0,0.2); }
         .die .val { position: absolute; bottom: 4px; right: 8px; font-size: 0.7rem; font-weight: 700; opacity: 0.7; }
 
-        /* CONTROLES FIJOS ABAJO */
-        .controls-container { width: 100%; flex-shrink: 0; padding-top: 5px; background: var(--bg-color); }
-        .controls { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; width: 100%; }
-        .btn { padding: 15px; border: none; border-radius: 12px; font-weight: 900; text-transform: uppercase; cursor: pointer; font-size: 0.9rem; }
+        /* CONTROLES FIJOS ABAJO (Flex-shrink: 0 para que nunca se oculten) */
+        .controls-container { width: 100%; flex-shrink: 0; padding-top: 10px; background: var(--bg-color); z-index: 5; margin-top: auto; border-top: 1px solid #1e293b; }
+        .controls { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; width: 100%; padding-bottom: 10px; }
+        .btn { padding: 15px; border: none; border-radius: 12px; font-weight: 900; text-transform: uppercase; cursor: pointer; font-size: 0.9rem; transition: 0.1s; }
         .btn-del { background: #334155; color: white; border: 1px solid #475569; }
         .btn-main { background: var(--primary); color: #000; box-shadow: 0 4px 0 #b45309; }
-        .btn-main:active { transform: translateY(4px); box-shadow: none; }
+        .btn-main:active { transform: translateY(3px); box-shadow: 0 1px 0 #b45309; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 
-        /* SELECTOR DE LETRA */
+        /* SELECTOR DE LETRA (Mejorado para móvil táctil) */
         #star-selector {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.98);
-            z-index: 2000; display: none; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 15px; align-content: center; overflow-y: auto;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.96);
+            z-index: 2000; display: none; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 20px;
+            align-content: center; justify-items: center; overflow-y: auto; -webkit-overflow-scrolling: touch;
         }
-        .star-letter { background: var(--primary); color: #000; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 900; border-radius: 10px; font-size: 1.2rem; }
+        .star-letter { background: var(--blanco); color: #0f172a; aspect-ratio: 1/1; width: 100%; max-width: 60px; display: flex; align-items: center; justify-content: center; font-weight: 900; border-radius: 10px; font-size: 1.5rem; transition: 0.1s; box-shadow: 0 4px 0 rgba(255,255,255,0.3); }
+        .star-letter:active { background: var(--primary); transform: translateY(3px); box-shadow: none; }
 
-        #msg { padding: 10px; text-align: center; border-radius: 10px; width: 100%; display: none; font-weight: 700; font-size: 0.8rem; margin-bottom: 5px; }
-        .success { background: #10b981; color: white; display: block !important; }
+        #msg { padding: 8px; text-align: center; border-radius: 10px; width: 100%; display: none; font-weight: 700; font-size: 0.8rem; margin-bottom: 5px; flex-shrink: 0; }
+        .success { background: #10b981; color: white; display: block !important; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* COLORES DADOS */
         .c-rojo { background: var(--rojo); color: white; }
@@ -147,6 +152,15 @@
 <div id="star-selector"></div>
 
 <script>
+    // Solución para la altura visual correcta en móviles (evitar barra de direcciones)
+    const setVh = () => {
+        let vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+    window.addEventListener('resize', setVh);
+    window.addEventListener('orientationchange', setVh);
+    setVh();
+
     const DADOS_MODEL = [
         {c:['A','E','O','R','S','★']}, {c:['A','E','O','R','S','★']}, {c:['A','E','O','R','S','★']},
         {c:['A','E','O','L','D','★']}, {c:['A','E','O','L','D','★']}, {c:['A','E','I','N','T','★']},
@@ -178,7 +192,6 @@
         const container = document.getElementById('dice-container');
         container.innerHTML = "";
         
-        // Efecto sacudida
         const scrollArea = document.getElementById('dice-scroll-area');
         scrollArea.classList.add('shaking');
         setTimeout(() => scrollArea.classList.remove('shaking'), 300);
@@ -187,7 +200,6 @@
         document.getElementById('msg').style.display = "none";
         state.wordStack = [];
 
-        // Lógica de 6+6 adaptada a N dados
         let elegidos = [];
         if (state.phase === 1) {
             let mezclada = [...DADOS_MODEL].sort(() => Math.random() - 0.5);
@@ -203,12 +215,10 @@
             }
         }
 
-        // Crear los dados en la interfaz
         state.activeDiceData = elegidos.map((d, index) => {
             const letra = d.c[Math.floor(Math.random() * 6)];
             const info = getLetterInfo(letra);
             const div = document.createElement('div');
-            // Usamos siempre multicolor para "PALABROS"
             div.className = `die c-${info.color} ${letra === '★' ? 'comodin' : ''}`;
             div.id = `die-${index}`;
             div.innerHTML = `${letra} <span class="val">${info.pts > 0 ? info.pts : ''}</span>`;
@@ -237,11 +247,17 @@
         const selector = document.getElementById('star-selector');
         selector.innerHTML = "";
         selector.style.display = "grid";
+        // Letras comunes en español ordenadas alfabéticamente
         "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('').forEach(l => {
             const b = document.createElement('div');
             b.className = "star-letter";
             b.innerText = l;
-            b.onclick = () => { selector.style.display = "none"; addLetter(idx, l); };
+            // Usamos touchend para mayor rapidez en móvil si es posible
+            b.onclick = (e) => { 
+                e.preventDefault();
+                selector.style.display = "none"; 
+                addLetter(idx, l); 
+            };
             selector.appendChild(b);
         });
     }
@@ -252,6 +268,7 @@
     }
 
     function deleteLast() {
+        if (state.wordStack.length === 0) return;
         state.wordStack.pop();
         updateDisplay();
     }
@@ -265,27 +282,22 @@
         clearInterval(state.timer);
         const time = Math.floor((Date.now() - state.startTime) / 1000);
         
-        // Puntos Velocidad
         const ptsV1 = parseInt(document.getElementById('pts-v1').value);
         let pVel = (time < 10) ? ptsV1 : (time < 15 ? 5 : (time < 20 ? 2 : 0));
         
-        // Sumamos los puntos de cada letra pulsada (Repetición libre)
         let pLetras = state.wordStack.reduce((sum, item) => sum + state.activeDiceData[item.diceIdx].pts, 0);
         
-        // Sextuplete adaptado: ¿Cuántos dados DISTINTOS se han usado de los N lanzados?
         const distinctDiceUsed = new Set(state.wordStack.map(item => item.diceIdx)).size;
         const N = parseInt(document.getElementById('cfg-n-dice').value);
         const ptsSex = parseInt(document.getElementById('pts-sex').value);
         let pSex = (distinctDiceUsed === N) ? ptsSex : 0;
         
-        // Bono Palabrón (Longitud de la palabra)
         const ptsPab = parseInt(document.getElementById('pts-pab').value);
         let pPab = (state.wordStack.length >= 10) ? ptsPab : 0;
 
         const total = pVel + pLetras + pSex + pPab;
         state.score += total;
 
-        // Feedback visual
         const msg = document.getElementById('msg');
         msg.innerHTML = `🔥 +${total} PUNTOS <br><small>Letras: ${pLetras} | Tiempo: ${pVel} ${pSex ? '| SEXTUPLETE!' : ''}${pPab ? ' | PALABRÓN!' : ''}</small>`;
         msg.className = "success";
@@ -293,7 +305,6 @@
         document.getElementById('ui-score').innerText = state.score;
         const btn = document.getElementById('btn-play');
 
-        // Lógica de turnos
         if (state.phase === 1) {
             state.phase = 2;
             btn.innerText = "SIGUIENTE RONDA (SOBRANTES)";
