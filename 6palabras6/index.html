@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PALABROS V10 - Análisis de Velocidad</title>
+    <title>PALABROS V11 - Desglose Total</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -120,20 +120,21 @@
     <div class="summary-card">
         <div class="summary-title">RESUMEN FINAL</div>
         <div class="summary-grid">
-            <div class="summary-stat"><span class="stat-lbl">Puntos Finales</span><span id="final-score" class="stat-val">0</span></div>
+            <div class="summary-stat"><span class="stat-lbl">Total</span><span id="final-score" class="stat-val">0</span></div>
             <div class="summary-stat"><span class="stat-lbl">Vocales/Cons.</span><span id="final-ling" class="stat-val">0/0</span></div>
         </div>
-        <h3 style="color:var(--verde)">Análisis de Velocidad:</h3>
+        
+        <h3 style="color:var(--morado)">Origen de tus Puntos:</h3>
+        <ul id="final-points-breakdown" class="summary-list"></ul>
+        <hr>
+        <h3 style="color:var(--verde)">Premios de Velocidad:</h3>
         <ul id="final-speed-list" class="summary-list"></ul>
         <hr>
-        <h3 style="color:var(--primary)">Palabras y Puntos:</h3>
+        <h3 style="color:var(--primary)">Palabras Realizadas:</h3>
         <ul id="final-words-list" class="summary-list"></ul>
         <hr>
-        <h3 style="color:var(--rojo)">Uso de Comodines:</h3>
+        <h3 style="color:var(--rojo)">Log de Comodines:</h3>
         <ul id="final-stars-list" class="summary-list"></ul>
-        <hr>
-        <h3 style="color:var(--azul)">Rendimiento (Velocidad):</h3>
-        <ul id="final-speed-stats" class="summary-list"></ul>
     </div>
     <button class="btn btn-main" onclick="resetGame()">NUEVA PARTIDA</button>
 </div>
@@ -152,10 +153,11 @@
     ];
 
     let state = { score: 0, round: 1, activeDiceData: [], wordStack: [], startTime: 0, timer: null, 
+                  totals: { letters: 0, speed: 0, bonuses: 0 },
                   history: { words: [], starLog: [], sizes: {}, speedDetail: [] } };
 
     function confirmReset() {
-        if(confirm("¿Estás seguro de iniciar una nueva partida?")) resetGame();
+        if(confirm("¿Seguro que quieres reiniciar?")) resetGame();
     }
 
     function handleAction() {
@@ -248,24 +250,30 @@
         clearInterval(state.timer);
         const time = Math.floor((Date.now() - state.startTime) / 1000);
         
+        // Puntos Velocidad
         let pVel = 0, tag = "Lento";
         if (time < 10) { pVel = parseInt(document.getElementById('v-10').value); tag = "< 10s"; }
         else if (time < 15) { pVel = parseInt(document.getElementById('v-15').value); tag = "< 15s"; }
         else if (time < 20) { pVel = parseInt(document.getElementById('v-20').value); tag = "< 20s"; }
         else if (time < 30) { pVel = parseInt(document.getElementById('v-30').value); tag = "< 30s"; }
 
-        state.history.speedDetail.push({ round: state.round, time: time, pts: pVel, tag: tag });
-
+        // Puntos Letras y Bonos
         let pLetras = state.wordStack.reduce((sum, item) => sum + state.activeDiceData[item.diceIdx].pts, 0);
         let pSex = (new Set(state.wordStack.map(i => i.diceIdx)).size === parseInt(document.getElementById('cfg-n-dice').value)) ? parseInt(document.getElementById('pts-sex').value) : 0;
         let pPab = (state.wordStack.length >= 10) ? parseInt(document.getElementById('pts-pab').value) : 0;
         
+        // Acumular totales para el resumen
+        state.totals.letters += pLetras;
+        state.totals.speed += pVel;
+        state.totals.bonuses += (pSex + pPab);
+
         const total = pVel + pLetras + pSex + pPab;
         state.score += total;
         state.history.words.push(state.wordStack.map(s => s.letra).join(''));
+        state.history.speedDetail.push({ round: state.round, time: time, pts: pVel, tag: tag });
 
         const msg = document.getElementById('msg');
-        msg.innerHTML = `🔥 +${total} PUNTOS<br><small>Letras: ${pLetras} | Tiempo: ${pVel} (${tag})</small>`;
+        msg.innerHTML = `✅ +${total} PUNTOS<br><small>Letras: ${pLetras} | Tiempo: ${pVel} (${tag})${pSex ? ' | 🔥 SEXT!' : ''}${pPab ? ' | 🏆 PAB!' : ''}</small>`;
         msg.style.display = "block";
         document.getElementById('ui-score').innerText = state.score;
 
@@ -280,24 +288,28 @@
         state.history.words.join('').split('').forEach(char => "AEIOU".includes(char) ? v++ : c++);
         document.getElementById('final-ling').innerText = `${v}V / ${c}C`;
 
-        // Detalle de velocidad por ronda
+        // Desglose de Totales
+        document.getElementById('final-points-breakdown').innerHTML = `
+            <li><span>Por valor de Letras:</span> <strong>${state.totals.letters}</strong></li>
+            <li><span>Por Velocidad:</span> <strong>${state.totals.speed}</strong></li>
+            <li><span>Por Premios (Sext/Pab):</span> <strong>${state.totals.bonuses}</strong></li>
+        `;
+
+        // Lista velocidad
         document.getElementById('final-speed-list').innerHTML = state.history.speedDetail.map(s => 
-            `<li><span>R${s.round}: <strong>${s.time}s</strong></span> <span class="tag c-verde">${s.tag} (+${s.pts} pts)</span></li>`
+            `<li><span>R${s.round}: ${s.time}s</span> <span class="tag c-verde">${s.tag}</span></li>`
         ).join('');
 
-        // Estadística de posiciones
-        const counts = {};
-        state.history.speedDetail.forEach(s => counts[s.tag] = (counts[s.tag] || 0) + 1);
-        document.getElementById('final-speed-stats').innerHTML = Object.entries(counts).map(([tag, count]) => 
-            `<li><span>Posición ${tag}:</span> <strong>${count} veces</strong></li>`
-        ).join('');
-
-        document.getElementById('final-words-list').innerHTML = state.history.words.map((w, i) => `<li><span>R${i+1}: <strong>${w}</strong></span> <span>${w.length} let.</span></li>`).join('');
-        document.getElementById('final-stars-list').innerHTML = state.history.starLog.length ? state.history.starLog.map(l => `<li><span>★ →</span> <strong>${l}</strong></li>`).join('') : "<li>Sin comodines</li>";
+        // Lista palabras
+        document.getElementById('final-words-list').innerHTML = state.history.words.map((w, i) => `<li><span>R${i+1}: <strong>${w}</strong></span> <span>${w.length} letras</span></li>`).join('');
+        
+        // Comodines
+        document.getElementById('final-stars-list').innerHTML = state.history.starLog.length ? state.history.starLog.map(l => `<li><span>★ usado como:</span> <strong>${l}</strong></li>`).join('') : "<li>No se usaron comodines</li>";
     }
 
     function resetGame() {
         state = { score: 0, round: 1, activeDiceData: [], wordStack: [], startTime: 0, timer: null, 
+                  totals: { letters: 0, speed: 0, bonuses: 0 },
                   history: { words: [], starLog: [], sizes: {}, speedDetail: [] } };
         document.getElementById('ui-score').innerText = "0"; document.getElementById('ui-round').innerText = "1/6";
         document.getElementById('summary-screen').style.display = 'none';
