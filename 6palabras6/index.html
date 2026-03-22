@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PALABROS V8 - Resumen y Desglose</title>
+    <title>PALABROS V9 - Reinicio Seguro</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -41,10 +41,11 @@
         .die .val { position: absolute; bottom: 4px; right: 8px; font-size: 0.7rem; font-weight: 700; opacity: 0.8; }
 
         .controls-container { width: 100%; flex-shrink: 0; padding: 10px 0; background: var(--bg-color); }
-        .controls { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; width: 100%; }
+        .controls { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; width: 100%; margin-bottom: 10px; }
         .btn { padding: 15px; border: none; border-radius: 12px; font-weight: 900; text-transform: uppercase; cursor: pointer; font-size: 0.9rem; }
         .btn-del { background: #334155; color: white; }
         .btn-main { background: var(--primary); color: #000; box-shadow: 0 4px 0 #b45309; }
+        .btn-reset { background: transparent; border: 2px solid #ef4444; color: #ef4444; width: 100%; padding: 10px; font-size: 0.75rem; letter-spacing: 1px; }
 
         #star-selector { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.98); z-index: 2000; display: none; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 15px; align-content: center; }
         .star-letter { background: var(--blanco); color: #0f172a; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 900; border-radius: 10px; font-size: 1.4rem; }
@@ -110,12 +111,13 @@
             <button class="btn btn-del" onclick="deleteLast()">Borrar</button>
             <button id="btn-play" class="btn btn-main" onclick="handleAction()">Lanzar Dados</button>
         </div>
+        <button class="btn btn-reset" onclick="confirmReset()">Iniciar Partida</button>
     </div>
 </main>
 
 <div id="summary-screen">
     <div class="summary-card">
-        <div class="summary-title">¡ENHORABUENA!</div>
+        <div class="summary-title">¡PARTIDA FINALIZADA!</div>
         <div class="summary-grid">
             <div class="summary-stat"><span class="stat-lbl">Puntos Finales</span><span id="final-score" class="stat-val">0</span></div>
             <div class="summary-stat"><span class="stat-lbl">Vocales/Cons.</span><span id="final-ling" class="stat-val">0/0</span></div>
@@ -123,13 +125,13 @@
         <h3 style="color:var(--primary)">Tus 6 Palabras:</h3>
         <ul id="final-words-list" class="summary-list"></ul>
         <hr>
-        <h3 style="color:var(--rojo)">Log de Comodines:</h3>
+        <h3 style="color:var(--rojo)">Uso de Comodines:</h3>
         <ul id="final-stars-list" class="summary-list"></ul>
         <hr>
-        <h3 style="color:var(--azul)">Tamaños Usados:</h3>
+        <h3 style="color:var(--azul)">Tamaños:</h3>
         <ul id="final-sizes-list" class="summary-list"></ul>
     </div>
-    <button class="btn btn-main" onclick="resetGame()">JUGAR OTRA VEZ</button>
+    <button class="btn btn-main" onclick="resetGame()">NUEVA PARTIDA</button>
 </div>
 
 <div id="star-selector"></div>
@@ -145,10 +147,13 @@
         {c:['U','P','M','F','G','★']}, {c:['U','P','H','J','Ñ','★']}, {c:['U','U','V','Q','Z','★']}
     ];
 
-    let state = { 
-        score: 0, round: 1, activeDiceData: [], wordStack: [], startTime: 0, timer: null,
-        history: { words: [], starLog: [], sizes: {} } 
-    };
+    let state = { score: 0, round: 1, activeDiceData: [], wordStack: [], startTime: 0, timer: null, history: { words: [], starLog: [], sizes: {} } };
+
+    function confirmReset() {
+        if(confirm("¿Estás seguro de que quieres iniciar una nueva partida? Perderás el progreso actual.")) {
+            resetGame();
+        }
+    }
 
     function handleAction() {
         const btn = document.getElementById('btn-play');
@@ -162,8 +167,7 @@
         const N = parseInt(document.getElementById('cfg-n-dice').value);
         const style = document.getElementById('cfg-style').value;
         const container = document.getElementById('dice-container');
-        container.innerHTML = "";
-        document.getElementById('display-word').innerText = "";
+        container.innerHTML = ""; document.getElementById('display-word').innerText = "";
         document.getElementById('msg').style.display = "none";
         state.wordStack = [];
 
@@ -240,64 +244,40 @@
         if (state.wordStack.length < 2) return;
         clearInterval(state.timer);
         const time = Math.floor((Date.now() - state.startTime) / 1000);
-        
-        let pVel = 0;
-        if (time < 10) pVel = parseInt(document.getElementById('v-10').value);
-        else if (time < 15) pVel = parseInt(document.getElementById('v-15').value);
-        else if (time < 20) pVel = parseInt(document.getElementById('v-20').value);
-        else if (time < 30) pVel = parseInt(document.getElementById('v-30').value);
-
+        let pVel = (time < 10) ? parseInt(document.getElementById('v-10').value) : (time < 15 ? parseInt(document.getElementById('v-15').value) : (time < 20 ? parseInt(document.getElementById('v-20').value) : (time < 30 ? parseInt(document.getElementById('v-30').value) : 0)));
         let pLetras = state.wordStack.reduce((sum, item) => sum + state.activeDiceData[item.diceIdx].pts, 0);
         let pSex = (new Set(state.wordStack.map(i => i.diceIdx)).size === parseInt(document.getElementById('cfg-n-dice').value)) ? parseInt(document.getElementById('pts-sex').value) : 0;
         let pPab = (state.wordStack.length >= 10) ? parseInt(document.getElementById('pts-pab').value) : 0;
         
         const total = pVel + pLetras + pSex + pPab;
         state.score += total;
-
-        const palabraFinal = state.wordStack.map(s => s.letra).join('');
-        state.history.words.push(palabraFinal);
-        const len = palabraFinal.length;
+        state.history.words.push(state.wordStack.map(s => s.letra).join(''));
+        const len = state.wordStack.length;
         state.history.sizes[len] = (state.history.sizes[len] || 0) + 1;
 
-        // Desglose detallado tras la ronda
         const msg = document.getElementById('msg');
-        msg.innerHTML = `🔥 +${total} PUNTOS<br><small>Letras: ${pLetras} | Tiempo: ${pVel} ${pSex ? '| Bonus Sext!' : ''}${pPab ? ' | Bonus Pab!' : ''}</small>`;
+        msg.innerHTML = `🔥 +${total} PUNTOS<br><small>Letras: ${pLetras} | Tiempo: ${pVel} ${pSex ? '| Sext!' : ''}${pPab ? ' | Pab!' : ''}</small>`;
         msg.style.display = "block";
-        
         document.getElementById('ui-score').innerText = state.score;
-        const btn = document.getElementById('btn-play');
-        
-        if(state.round === 6) {
-            btn.innerText = "VER RESUMEN FINAL";
-        } else {
-            state.round++;
-            btn.innerText = "NUEVA RONDA " + state.round;
-            document.getElementById('ui-round').innerText = state.round + "/6";
-        }
+
+        if(state.round === 6) { document.getElementById('btn-play').innerText = "VER RESUMEN FINAL"; }
+        else { state.round++; document.getElementById('btn-play').innerText = "NUEVA RONDA " + state.round; document.getElementById('ui-round').innerText = state.round + "/6"; }
     }
 
     function showSummary() {
         document.getElementById('summary-screen').style.display = 'flex';
         document.getElementById('final-score').innerText = state.score;
-        
         let v = 0, c = 0;
         state.history.words.join('').split('').forEach(char => "AEIOU".includes(char) ? v++ : c++);
-        document.getElementById('final-ling').innerText = `${v} Voc / ${c} Con`;
-
-        const wList = document.getElementById('final-words-list');
-        wList.innerHTML = state.history.words.map((w, i) => `<li><span>Ronda ${i+1}: <strong>${w}</strong></span> <span>${w.length} let.</span></li>`).join('');
-        
-        const sList = document.getElementById('final-stars-list');
-        sList.innerHTML = state.history.starLog.length ? state.history.starLog.map(l => `<li><span>Comodín asignado a:</span> <strong>${l}</strong></li>`).join('') : "<li>No usaste comodines</li>";
-
-        const sizeList = document.getElementById('final-sizes-list');
-        sizeList.innerHTML = Object.entries(state.history.sizes).sort((a,b) => b[0]-a[0]).map(([size, count]) => `<li><span>${size} letras:</span> <span>${count} vez/veces</span></li>`).join('');
+        document.getElementById('final-ling').innerText = `${v}V / ${c}C`;
+        document.getElementById('final-words-list').innerHTML = state.history.words.map((w, i) => `<li><span>Ronda ${i+1}: <strong>${w}</strong></span> <span>${w.length} let.</span></li>`).join('');
+        document.getElementById('final-stars-list').innerHTML = state.history.starLog.length ? state.history.starLog.map(l => `<li><span>Comodín asignado a:</span> <strong>${l}</strong></li>`).join('') : "<li>No usaste comodines</li>";
+        document.getElementById('final-sizes-list').innerHTML = Object.entries(state.history.sizes).sort((a,b)=>b[0]-a[0]).map(([s,count]) => `<li><span>${s} letras:</span> <span>${count} vez</span></li>`).join('');
     }
 
     function resetGame() {
         state = { score: 0, round: 1, activeDiceData: [], wordStack: [], startTime: 0, timer: null, history: { words: [], starLog: [], sizes: {} } };
-        document.getElementById('ui-score').innerText = "0";
-        document.getElementById('ui-round').innerText = "1/6";
+        document.getElementById('ui-score').innerText = "0"; document.getElementById('ui-round').innerText = "1/6";
         document.getElementById('summary-screen').style.display = 'none';
         startRound();
     }
