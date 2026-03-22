@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PALABROS V7 - Estadísticas Finales</title>
+    <title>PALABROS V8 - Resumen y Desglose</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -37,7 +37,6 @@
         .dice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; padding-bottom: 15px; }
         
         .die { aspect-ratio: 1/1; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 900; position: relative; box-shadow: 0 5px 0 rgba(0,0,0,0.4); cursor: pointer; user-select: none; transition: 0.1s; }
-        .die:active { transform: scale(0.95) translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.4); }
         .die.comodin-fijado { color: #ffffff !important; background: #e11d48 !important; box-shadow: 0 5px 0 #9f1239; }
         .die .val { position: absolute; bottom: 4px; right: 8px; font-size: 0.7rem; font-weight: 700; opacity: 0.8; }
 
@@ -50,16 +49,15 @@
         #star-selector { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.98); z-index: 2000; display: none; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 15px; align-content: center; }
         .star-letter { background: var(--blanco); color: #0f172a; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 900; border-radius: 10px; font-size: 1.4rem; }
 
-        #msg { padding: 10px; text-align: center; border-radius: 10px; width: 100%; display: none; font-weight: 700; font-size: 0.8rem; margin-bottom: 5px; background: #10b981; color: white; }
+        #msg { padding: 10px; text-align: center; border-radius: 10px; width: 100%; display: none; font-weight: 700; font-size: 0.8rem; margin-bottom: 5px; background: #10b981; color: white; line-height: 1.4; }
 
-        /* RESUMEN FINAL */
         #summary-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 3000; display: none; flex-direction: column; padding: 20px; overflow-y: auto; }
         .summary-card { background: var(--card-bg); padding: 20px; border-radius: 20px; border: 2px solid var(--primary); margin-bottom: 20px; }
         .summary-title { color: var(--primary); font-size: 1.5rem; font-weight: 900; text-align: center; margin-bottom: 20px; }
         .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .summary-stat { background: #0f172a; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid #334155; }
         .summary-list { margin-top: 10px; list-style: none; font-size: 0.9rem; }
-        .summary-list li { padding: 5px 0; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; }
+        .summary-list li { padding: 8px 0; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; }
 
         .c-rojo { background: var(--rojo); color: white; }
         .c-azul { background: var(--azul); color: white; }
@@ -117,18 +115,18 @@
 
 <div id="summary-screen">
     <div class="summary-card">
-        <div class="summary-title">¡PARTIDA FINALIZADA!</div>
+        <div class="summary-title">¡ENHORABUENA!</div>
         <div class="summary-grid">
-            <div class="summary-stat"><span class="stat-lbl">Puntos Totales</span><span id="final-score" class="stat-val">0</span></div>
+            <div class="summary-stat"><span class="stat-lbl">Puntos Finales</span><span id="final-score" class="stat-val">0</span></div>
             <div class="summary-stat"><span class="stat-lbl">Vocales/Cons.</span><span id="final-ling" class="stat-val">0/0</span></div>
         </div>
-        <h3>Tus Palabras:</h3>
+        <h3 style="color:var(--primary)">Tus 6 Palabras:</h3>
         <ul id="final-words-list" class="summary-list"></ul>
         <hr>
-        <h3>Uso de Comodines:</h3>
+        <h3 style="color:var(--rojo)">Log de Comodines:</h3>
         <ul id="final-stars-list" class="summary-list"></ul>
         <hr>
-        <h3>Tamaños de Palabra:</h3>
+        <h3 style="color:var(--azul)">Tamaños Usados:</h3>
         <ul id="final-sizes-list" class="summary-list"></ul>
     </div>
     <button class="btn btn-main" onclick="resetGame()">JUGAR OTRA VEZ</button>
@@ -154,12 +152,13 @@
 
     function handleAction() {
         const btn = document.getElementById('btn-play');
-        if (btn.innerText.includes("LANZAR") || btn.innerText.includes("RONDA") || btn.innerText.includes("NUEVA")) startRound();
+        const txt = btn.innerText;
+        if (txt.includes("LANZAR") || txt.includes("RONDA") || txt.includes("NUEVA")) startRound();
+        else if (txt.includes("RESUMEN")) showSummary();
         else validateWord();
     }
 
     function startRound() {
-        if(state.round > 6) return showSummary();
         const N = parseInt(document.getElementById('cfg-n-dice').value);
         const style = document.getElementById('cfg-style').value;
         const container = document.getElementById('dice-container');
@@ -202,7 +201,7 @@
             b.onclick = () => { 
                 selector.style.display = "none"; 
                 state.activeDiceData[idx].fijada = l;
-                state.history.starLog.push(l); // Guardar para resumen
+                state.history.starLog.push(l);
                 const el = document.getElementById(`die-${idx}`);
                 el.innerHTML = `${l} <span class="val">★</span>`;
                 el.className = "die comodin-fijado";
@@ -218,13 +217,11 @@
         if (state.wordStack.length === 0) return;
         const last = state.wordStack.pop();
         const die = state.activeDiceData[last.diceIdx];
-        if (die.original === '★') {
-            if (!state.wordStack.some(item => item.diceIdx === last.diceIdx)) {
-                die.fijada = '★';
-                const el = document.getElementById(`die-${last.diceIdx}`);
-                el.innerHTML = `★ <span class="val"></span>`;
-                el.className = `die ${die.colorClass}`;
-            }
+        if (die.original === '★' && !state.wordStack.some(item => item.diceIdx === last.diceIdx)) {
+            die.fijada = '★';
+            const el = document.getElementById(`die-${last.diceIdx}`);
+            el.innerHTML = `★ <span class="val"></span>`;
+            el.className = `die ${die.colorClass}`;
         }
         updateDisplay();
     }
@@ -233,37 +230,48 @@
 
     function getLetterInfo(l) {
         if (l === '★') return { color: 'blanco', pts: 0 };
-        if ("AEORS".includes(l)) return { color: 'rojo', pts: parseInt(document.getElementById('p-rojo').value) };
-        if ("ILNDT".includes(l)) return { color: 'azul', pts: parseInt(document.getElementById('p-azul').value) };
-        if ("CBMP".includes(l)) return { color: 'verde', pts: parseInt(document.getElementById('p-verde').value) };
-        return { color: 'morado', pts: parseInt(document.getElementById('p-mora').value) };
+        if ("AEORS".includes(l)) return { color: 'rojo', pts: parseInt(document.getElementById('p-rojo').value) || 1 };
+        if ("ILNDT".includes(l)) return { color: 'azul', pts: parseInt(document.getElementById('p-azul').value) || 2 };
+        if ("CBMP".includes(l)) return { color: 'verde', pts: parseInt(document.getElementById('p-verde').value) || 3 };
+        return { color: 'morado', pts: parseInt(document.getElementById('p-mora').value) || 5 };
     }
 
     function validateWord() {
         if (state.wordStack.length < 2) return;
         clearInterval(state.timer);
         const time = Math.floor((Date.now() - state.startTime) / 1000);
-        let pVel = (time < 10) ? parseInt(document.getElementById('v-10').value) : (time < 15 ? parseInt(document.getElementById('v-15').value) : (time < 20 ? parseInt(document.getElementById('v-20').value) : (time < 30 ? parseInt(document.getElementById('v-30').value) : 0)));
+        
+        let pVel = 0;
+        if (time < 10) pVel = parseInt(document.getElementById('v-10').value);
+        else if (time < 15) pVel = parseInt(document.getElementById('v-15').value);
+        else if (time < 20) pVel = parseInt(document.getElementById('v-20').value);
+        else if (time < 30) pVel = parseInt(document.getElementById('v-30').value);
+
         let pLetras = state.wordStack.reduce((sum, item) => sum + state.activeDiceData[item.diceIdx].pts, 0);
         let pSex = (new Set(state.wordStack.map(i => i.diceIdx)).size === parseInt(document.getElementById('cfg-n-dice').value)) ? parseInt(document.getElementById('pts-sex').value) : 0;
         let pPab = (state.wordStack.length >= 10) ? parseInt(document.getElementById('pts-pab').value) : 0;
         
+        const total = pVel + pLetras + pSex + pPab;
+        state.score += total;
+
         const palabraFinal = state.wordStack.map(s => s.letra).join('');
         state.history.words.push(palabraFinal);
         const len = palabraFinal.length;
         state.history.sizes[len] = (state.history.sizes[len] || 0) + 1;
 
-        const total = pVel + pLetras + pSex + pPab;
-        state.score += total;
-        document.getElementById('ui-score').innerText = state.score;
-        document.getElementById('msg').innerHTML = `✅ +${total} PUNTOS`;
-        document.getElementById('msg').style.display = "block";
+        // Desglose detallado tras la ronda
+        const msg = document.getElementById('msg');
+        msg.innerHTML = `🔥 +${total} PUNTOS<br><small>Letras: ${pLetras} | Tiempo: ${pVel} ${pSex ? '| Bonus Sext!' : ''}${pPab ? ' | Bonus Pab!' : ''}</small>`;
+        msg.style.display = "block";
         
-        state.round++;
-        if(state.round > 6) {
-            document.getElementById('btn-play').innerText = "VER RESUMEN FINAL";
+        document.getElementById('ui-score').innerText = state.score;
+        const btn = document.getElementById('btn-play');
+        
+        if(state.round === 6) {
+            btn.innerText = "VER RESUMEN FINAL";
         } else {
-            document.getElementById('btn-play').innerText = "NUEVA RONDA " + state.round;
+            state.round++;
+            btn.innerText = "NUEVA RONDA " + state.round;
             document.getElementById('ui-round').innerText = state.round + "/6";
         }
     }
@@ -272,21 +280,18 @@
         document.getElementById('summary-screen').style.display = 'flex';
         document.getElementById('final-score').innerText = state.score;
         
-        // Vocales vs Consonantes
         let v = 0, c = 0;
-        const allChars = state.history.words.join('');
-        allChars.split('').forEach(char => "AEIOU".includes(char) ? v++ : c++);
-        document.getElementById('final-ling').innerText = `${v}V / ${c}C`;
+        state.history.words.join('').split('').forEach(char => "AEIOU".includes(char) ? v++ : c++);
+        document.getElementById('final-ling').innerText = `${v} Voc / ${c} Con`;
 
-        // Listas
         const wList = document.getElementById('final-words-list');
-        wList.innerHTML = state.history.words.map(w => `<li><span>${w}</span> <span>${w.length} letras</span></li>`).join('');
+        wList.innerHTML = state.history.words.map((w, i) => `<li><span>Ronda ${i+1}: <strong>${w}</strong></span> <span>${w.length} let.</span></li>`).join('');
         
         const sList = document.getElementById('final-stars-list');
-        sList.innerHTML = state.history.starLog.length ? state.history.starLog.map(l => `<li><span>Comodín usado como:</span> <strong>${l}</strong></li>`).join('') : "<li>No usaste comodines</li>";
+        sList.innerHTML = state.history.starLog.length ? state.history.starLog.map(l => `<li><span>Comodín asignado a:</span> <strong>${l}</strong></li>`).join('') : "<li>No usaste comodines</li>";
 
         const sizeList = document.getElementById('final-sizes-list');
-        sizeList.innerHTML = Object.entries(state.history.sizes).map(([size, count]) => `<li><span>Tamaño ${size}:</span> <span>${count} vez/veces</span></li>`).join('');
+        sizeList.innerHTML = Object.entries(state.history.sizes).sort((a,b) => b[0]-a[0]).map(([size, count]) => `<li><span>${size} letras:</span> <span>${count} vez/veces</span></li>`).join('');
     }
 
     function resetGame() {
