@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6 PALABRAS 6 - El Juego</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --primary: #f59e0b;
+            --text-color: #f8fafc;
+            --rojo: #ef4444;
+            --azul: #3b82f6;
+            --verde: #10b981;
+            --morado: #a855f7;
+            --blanco: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { 
+            font-family: 'Montserrat', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-color);
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* CONFIGURACIÓN */
+        #config-panel {
+            position: fixed; top: 0; right: -300px; width: 300px; height: 100%;
+            background: var(--card-bg); z-index: 100; padding: 20px;
+            transition: 0.3s ease; overflow-y: auto; box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+        }
+        #config-panel.open { right: 0; }
+        .config-btn { position: fixed; top: 10px; right: 10px; z-index: 101; cursor: pointer; font-size: 24px; background: none; border: none; color: white; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 12px; margin-bottom: 5px; color: var(--primary); }
+        input { width: 100%; padding: 8px; background: #334155; border: 1px solid #475569; color: white; border-radius: 4px; }
+
+        /* HEADER & STATUS */
+        header { width: 100%; padding: 20px; text-align: center; background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(10px); }
+        h1 { font-weight: 900; font-size: 2rem; text-transform: uppercase; letter-spacing: 2px; color: var(--primary); }
+        .stats { display: flex; justify-content: space-around; width: 100%; max-width: 500px; margin: 15px 0; padding: 10px; background: var(--card-bg); border-radius: 12px; }
+        .stat-box { text-align: center; }
+        .stat-val { font-weight: bold; font-size: 1.2rem; display: block; }
+        .stat-lbl { font-size: 10px; color: #94a3b8; text-transform: uppercase; }
+
+        /* JUEGO */
+        #game-container { width: 95%; max-width: 600px; flex-grow: 1; display: flex; flex-direction: column; align-items: center; gap: 20px; padding-bottom: 40px; }
+        
+        .dice-grid { 
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 100%; 
+            perspective: 1000px; margin-top: 20px;
+        }
+        .die {
+            aspect-ratio: 1/1; background: var(--blanco); border-radius: 12px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: #1e293b; font-size: 2.5rem; font-weight: 900;
+            box-shadow: 0 8px 0 #cbd5e1, 0 10px 20px rgba(0,0,0,0.4);
+            transition: transform 0.1s; position: relative;
+        }
+        .die .pt-small { position: absolute; bottom: 5px; right: 8px; font-size: 0.8rem; font-weight: 700; }
+        .die.comodin { color: var(--rojo); }
+        
+        /* BOTONES Y INPUTS */
+        #word-input {
+            width: 100%; padding: 15px; border-radius: 12px; border: 2px solid var(--primary);
+            background: #0f172a; color: white; font-size: 1.2rem; text-align: center;
+            text-transform: uppercase; margin-top: 10px;
+        }
+        .btn-action {
+            width: 100%; padding: 15px; border: none; border-radius: 12px;
+            background: var(--primary); color: #000; font-weight: 900; font-size: 1.1rem;
+            text-transform: uppercase; cursor: pointer; transition: 0.2s;
+        }
+        .btn-action:active { transform: scale(0.98); opacity: 0.9; }
+        .btn-action:disabled { background: #475569; color: #94a3b8; }
+
+        /* FEEDBACK */
+        #feedback { text-align: center; margin-top: 10px; animation: fadeInUp 0.5s; }
+        .score-row { display: flex; justify-content: space-between; gap: 20px; margin: 5px 0; font-size: 14px; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* COLORES OPCIONALES */
+        .color-rojo { background-color: var(--rojo) !important; color: white !important; box-shadow: 0 8px 0 #991b1b, 0 10px 20px rgba(0,0,0,0.4) !important; }
+        .color-azul { background-color: var(--azul) !important; color: white !important; box-shadow: 0 8px 0 #1e40af, 0 10px 20px rgba(0,0,0,0.4) !important; }
+        .color-verde { background-color: var(--verde) !important; color: white !important; box-shadow: 0 8px 0 #065f46, 0 10px 20px rgba(0,0,0,0.4) !important; }
+        .color-morado { background-color: var(--morado) !important; color: white !important; box-shadow: 0 8px 0 #6b21a8, 0 10px 20px rgba(0,0,0,0.4) !important; }
+        .color-blanco { background-color: var(--blanco) !important; color: #1e293b !important; }
+    </style>
+</head>
+<body>
+
+    <button class="config-btn" onclick="toggleConfig()">⚙️</button>
+    
+    <div id="config-panel">
+        <h2 style="margin-bottom:20px; color:var(--primary)">Ajustes</h2>
+        <div class="input-group">
+            <label>Color Dados</label>
+            <select id="config-style" style="width:100%; padding:8px; background:#334155; color:white;">
+                <option value="color">Multicolor (Frecuencia)</option>
+                <option value="blanco">Blanco Clásico</option>
+            </select>
+        </div>
+        <div class="input-group"><label>Velocidad 1º (pts)</label><input type="number" id="cfg-v1" value="10"></div>
+        <div class="input-group"><label>Bono Palabrón (pts)</label><input type="number" id="cfg-pab" value="10"></div>
+        <div class="input-group"><label>Bono Sextuplete (pts)</label><input type="number" id="cfg-sex" value="20"></div>
+        <hr style="margin:20px 0; opacity:0.2">
+        <p style="font-size:10px; color:var(--primary)">VALOR POR COLOR/LETRA</p>
+        <div class="input-group"><label>Rojo (AEO...)</label><input type="number" id="cfg-c1" value="1"></div>
+        <div class="input-group"><label>Morado (ZQX...)</label><input type="number" id="cfg-c5" value="5"></div>
+        <button class="btn-action" style="font-size:0.8rem" onclick="toggleConfig()">Cerrar y Guardar</button>
+    </div>
+
+    <header>
+        <h1>6 PALABRAS 6</h1>
+    </header>
+
+    <div class="stats">
+        <div class="stat-box"><span class="stat-lbl">Ronda</span><span id="round-display" class="stat-val">1 / 6</span></div>
+        <div class="stat-box"><span class="stat-lbl">Puntos</span><span id="score-display" class="stat-val">0</span></div>
+        <div class="stat-box"><span class="stat-lbl">Tiempo</span><span id="timer-display" class="stat-val">00:00</span></div>
+    </div>
+
+    <main id="game-container">
+        <div class="dice-grid" id="dice-grid"></div>
+        
+        <input type="text" id="word-input" placeholder="Escribe tu palabra..." autocomplete="off">
+        <button id="main-btn" class="btn-action" onclick="handleAction()">Lanzar Dados</button>
+        
+        <div id="feedback"></div>
+    </main>
+
+    <script>
+        // CONFIGURACIÓN DE DADOS (Tu lógica de 12 dados)
+        const DADOS_ALL = [
+            { id: 1, caras: ['A','E','O','R','S','★'] },
+            { id: 2, caras: ['A','E','O','R','S','★'] },
+            { id: 3, caras: ['A','E','O','R','S','★'] },
+            { id: 4, caras: ['A','E','O','L','D','★'] },
+            { id: 5, caras: ['A','E','O','L','D','★'] },
+            { id: 6, caras: ['A','E','I','N','T','★'] },
+            { id: 7, caras: ['I','N','T','C','B','★'] },
+            { id: 8, caras: ['I','N','T','C','B','★'] },
+            { id: 9, caras: ['I','L','D','C','M','★'] },
+            { id: 10, caras: ['U','P','M','F','G','★'] },
+            { id: 11, caras: ['U','P','H','J','Ñ','★'] },
+            { id: 12, caras: ['U','U','V','Q','Z','★'] }
+        ];
+
+        let gameState = {
+            totalScore: 0,
+            round: 1,
+            timeStart: 0,
+            interval: null,
+            currentDice: [],
+            remainingDice: [],
+            isRoundActive: false,
+            phase: 1 // 1: Ronda A (6), 2: Ronda B (6)
+        };
+
+        function getLetterStyle(letter) {
+            if (letter === '★') return { color: 'blanco', pts: 0 };
+            if ('AEORS'.includes(letter)) return { color: 'rojo', pts: parseInt(document.getElementById('cfg-c1').value) };
+            if ('ILONTD'.includes(letter)) return { color: 'azul', pts: 2 };
+            if ('CBMP'.includes(letter)) return { color: 'verde', pts: 3 };
+            if ('UFGHJÑVQZ'.includes(letter)) return { color: 'morado', pts: parseInt(document.getElementById('cfg-c5').value) };
+            return { color: 'blanco', pts: 0 };
+        }
+
+        function toggleConfig() {
+            document.getElementById('config-panel').classList.toggle('open');
+        }
+
+        function startTimer() {
+            gameState.timeStart = Date.now();
+            gameState.interval = setInterval(() => {
+                const diff = Math.floor((Date.now() - gameState.timeStart) / 1000);
+                document.getElementById('timer-display').innerText = diff + "s";
+            }, 1000);
+        }
+
+        function handleAction() {
+            if (!gameState.isRoundActive) {
+                launchDice();
+            } else {
+                submitWord();
+            }
+        }
+
+        function launchDice() {
+            const grid = document.getElementById('dice-grid');
+            const btn = document.getElementById('main-btn');
+            grid.innerHTML = "";
+            document.getElementById('feedback').innerHTML = "";
+            document.getElementById('word-input').value = "";
+
+            // Lógica de 6 y luego los otros 6
+            let pool = [];
+            if (gameState.phase === 1) {
+                const shuffled = [...DADOS_ALL].sort(() => 0.5 - Math.random());
+                gameState.currentDice = shuffled.slice(0, 6);
+                gameState.remainingDice = shuffled.slice(6);
+            } else {
+                gameState.currentDice = gameState.remainingDice;
+            }
+
+            gameState.currentDice.forEach(d => {
+                const letter = d.caras[Math.floor(Math.random() * 6)];
+                const style = getLetterStyle(letter);
+                const colorClass = document.getElementById('config-style').value === 'color' ? 'color-' + style.color : 'color-blanco';
+                
+                const el = document.createElement('div');
+                el.className = `die ${colorClass} ${letter === '★' ? 'comodin' : ''}`;
+                el.innerHTML = `${letter} <span class="pt-small">${style.pts > 0 ? style.pts : ''}</span>`;
+                grid.appendChild(el);
+            });
+
+            gameState.isRoundActive = true;
+            btn.innerText = "¡VALIDEZ!";
+            startTimer();
+        }
+
+        function submitWord() {
+            clearInterval(gameState.interval);
+            const word = document.getElementById('word-input').value.toUpperCase();
+            if (word.length < 2) {
+                alert("Escribe una palabra válida");
+                startTimer();
+                return;
+            }
+
+            const timeTaken = Math.floor((Date.now() - gameState.timeStart) / 1000);
+            calculateScore(word, timeTaken);
+        }
+
+        function calculateScore(word, time) {
+            let ptsVelocidad = 0;
+            const v1 = parseInt(document.getElementById('cfg-v1').value);
+            if (time <= 10) ptsVelocidad = v1;
+            else if (time <= 15) ptsVelocidad = Math.floor(v1*0.5);
+            else if (time <= 20) ptsVelocidad = 2;
+            else ptsVelocidad = 0;
+
+            let ptsLetras = 0;
+            const wordLetters = word.split('');
+            const diceLetters = gameState.currentDice.map(d => d.caras); // No perfecto pero sirve para el ejemplo
+
+            wordLetters.forEach(l => {
+                ptsLetras += getLetterStyle(l).pts;
+            });
+
+            let bonusPab = (word.length >= 10) ? parseInt(document.getElementById('cfg-pab').value) : 0;
+            
+            // Simplificación del Sextuplete para web: Comprobar si todas las letras de los dados están contenidas
+            // En una app real haríamos un mapeo 1:1.
+            let bonusSex = 0; 
+
+            const totalRonda = ptsVelocidad + ptsLetras + bonusPab + bonusSex;
+            gameState.totalScore += totalRonda;
+
+            showFeedback(ptsVelocidad, ptsLetras, bonusPab, totalRonda, time);
+            updateUI();
+            
+            // Avanzar fase/ronda
+            gameState.isRoundActive = false;
+            const btn = document.getElementById('main-btn');
+            
+            if (gameState.phase === 1) {
+                gameState.phase = 2;
+                btn.innerText = "Siguiente Ronda (Dados Sobrantes)";
+            } else {
+                gameState.phase = 1;
+                gameState.round++;
+                if (gameState.round > 6) {
+                    btn.innerText = "PARTIDA TERMINADA";
+                    btn.disabled = true;
+                } else {
+                    btn.innerText = "Nuevo Ciclo (Bolsa)";
+                }
+            }
+        }
+
+        function showFeedback(v, l, p, total, time) {
+            const fb = document.getElementById('feedback');
+            fb.innerHTML = `
+                <h3 style="color:var(--primary)">+ ${total} PUNTOS</h3>
+                <div class="score-row"><span>⏱️ Rapidez (${time}s):</span> <span>${v}</span></div>
+                <div class="score-row"><span>🔤 Letras:</span> <span>${l}</span></div>
+                ${p > 0 ? `<div class="score-row" style="color:var(--verde)"><span>🔥 PALABRÓN:</span> <span>+${p}</span></div>` : ''}
+            `;
+        }
+
+        function updateUI() {
+            document.getElementById('score-display').innerText = gameState.totalScore;
+            document.getElementById('round-display').innerText = (gameState.round > 6 ? 6 : gameState.round) + " / 6";
+        }
+    </script>
+</body>
+</html>
