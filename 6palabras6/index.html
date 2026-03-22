@@ -1,3 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6 PALABRAS 6 - Edición Libre</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a; --card-bg: #1e293b; --primary: #f59e0b; --text-color: #f8fafc;
+            --rojo: #ef4444; --azul: #3b82f6; --verde: #10b981; --morado: #a855f7; --blanco: #ffffff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-bottom: 50px; }
+        
+        /* PANEL CONFIG */
+        #config-panel {
+            position: fixed; top: 0; right: -320px; width: 300px; height: 100%;
+            background: var(--card-bg); z-index: 100; padding: 20px; transition: 0.3s; overflow-y: auto; box-shadow: -10px 0 20px rgba(0,0,0,0.5);
+        }
+        #config-panel.open { right: 0; }
+        .config-btn { position: fixed; top: 15px; right: 15px; z-index: 101; background: #1e293b; border: 1px solid var(--primary); border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; }
+        .input-group { margin-bottom: 12px; }
+        label { display: block; font-size: 11px; color: var(--primary); margin-bottom: 3px; text-transform: uppercase; font-weight: 700; }
+        input, select { width: 100%; padding: 10px; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 8px; }
+
+        /* HEADER Y STATS */
+        header { width: 100%; padding: 20px; text-align: center; background: #1e293b; border-bottom: 3px solid var(--primary); margin-bottom: 10px; }
+        h1 { font-weight: 900; letter-spacing: 2px; font-size: 1.8rem; color: var(--primary); }
+        .stats { display: flex; justify-content: space-around; width: 95%; max-width: 500px; margin: 10px 0; background: var(--card-bg); padding: 15px; border-radius: 20px; border: 1px solid #334155; }
+        .stat-box { text-align: center; flex: 1; }
+        .stat-val { font-weight: 900; font-size: 1.4rem; display: block; color: var(--blanco); }
+        .stat-lbl { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* JUEGO */
+        #main-game { width: 95%; max-width: 550px; display: flex; flex-direction: column; gap: 20px; align-items: center; margin-top: 10px; }
+        .dice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 100%; }
+        .die {
+            aspect-ratio: 1/1; border-radius: 16px; display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; font-weight: 900; position: relative; box-shadow: 0 8px 0 rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        .die.comodin { color: #ff0000; text-shadow: 0 0 10px rgba(255,0,0,0.3); }
+        .die .val { position: absolute; bottom: 8px; right: 10px; font-size: 0.8rem; opacity: 0.8; }
+
+        #word-input {
+            width: 100%; padding: 20px; border-radius: 15px; border: 3px solid #334155;
+            background: #1e293b; color: white; font-size: 1.6rem; text-align: center; text-transform: uppercase;
+            font-weight: 700; transition: 0.3s;
+        }
+        #word-input:focus { border-color: var(--primary); outline: none; background: #0f172a; }
+        .btn {
+            width: 100%; padding: 18px; border: none; border-radius: 15px; font-weight: 900;
+            text-transform: uppercase; cursor: pointer; background: var(--primary); font-size: 1.1rem;
+            box-shadow: 0 4px 0 #b45309; transition: 0.1s;
+        }
+        .btn:active { transform: translateY(4px); box-shadow: none; }
+        .btn:disabled { background: #475569; box-shadow: none; cursor: not-allowed; opacity: 0.5; }
+
+        #msg { padding: 15px; text-align: center; font-weight: 700; border-radius: 12px; width: 100%; display: none; line-height: 1.4; }
+        .error { background: #fee2e2; color: #991b1b; display: block !important; }
+        .success { background: #dcfce7; color: #166534; display: block !important; }
+
+        /* COLORES DADOS */
+        .c-rojo { background: var(--rojo); color: white; }
+        .c-azul { background: var(--azul); color: white; }
+        .c-verde { background: var(--verde); color: white; }
+        .c-morado { background: var(--morado); color: white; }
+        .c-blanco { background: var(--blanco); color: #1e293b; }
+    </style>
+</head>
+<body>
+
+<button class="config-btn" onclick="document.getElementById('config-panel').classList.toggle('open')">⚙️</button>
+
+<div id="config-panel">
+    <h2 style="color:var(--primary); margin-bottom:15px">REGLAS</h2>
+    <label>Estilo Dados</label>
+    <select id="cfg-style" class="input-group">
+        <option value="color">Multicolor</option>
+        <option value="blanco">Clásico (Blanco)</option>
+    </select>
+    <div class="input-group"><label>Puntos 1º puesto</label><input type="number" id="pts-v1" value="10"></div>
+    <div class="input-group"><label>Bono Palabrón (10+)</label><input type="number" id="pts-pab" value="10"></div>
+    <div class="input-group"><label>Bono Sextuplete</label><input type="number" id="pts-sex" value="20"></div>
+    <p style="font-size:10px; color:var(--primary); margin: 15px 0 5px">VALORES LETRAS</p>
+    <div class="input-group"><label>🔴 Rojo (A,E,O,R,S)</label><input type="number" id="p-rojo" value="1"></div>
+    <div class="input-group"><label>🔵 Azul (I,L,D,N,T)</label><input type="number" id="p-azul" value="2"></div>
+    <div class="input-group"><label>🟢 Verde (C,B,M,P)</label><input type="number" id="p-verde" value="3"></div>
+    <div class="input-group"><label>🟣 Morado (Difíciles/U)</label><input type="number" id="p-mora" value="5"></div>
+    <button class="btn" style="padding:10px; font-size:0.8rem" onclick="document.getElementById('config-panel').classList.remove('open')">CERRAR Y GUARDAR</button>
+</div>
+
+<header><h1>6 PALABRAS 6</h1></header>
+
+<div class="stats">
+    <div class="stat-box"><span class="stat-lbl">RONDA</span><span id="ui-round" class="stat-val">1/6</span></div>
+    <div class="stat-box"><span class="stat-lbl">PUNTOS</span><span id="ui-score" class="stat-val">0</span></div>
+    <div class="stat-box"><span class="stat-lbl">TIEMPO</span><span id="ui-timer" class="stat-val">0s</span></div>
+</div>
+
+<main id="main-game">
+    <div id="dice-container" class="dice-grid"></div>
+    <div id="msg"></div>
+    <input type="text" id="word-input" placeholder="¡Lanza los dados!" disabled>
+    <button id="btn-play" class="btn" onclick="handleMainAction()">LANZAR DADOS</button>
+</main>
+
 <script>
     const DADOS = [
         {c:['A','E','O','R','S','★']}, {c:['A','E','O','R','S','★']}, {c:['A','E','O','R','S','★']},
@@ -6,24 +114,7 @@
         {c:['U','P','M','F','G','★']}, {c:['U','P','H','J','Ñ','★']}, {c:['U','U','V','Q','Z','★']}
     ];
 
-    let state = { score: 0, round: 1, phase: 1, pool: [], activeDice: [], startTime: 0, timer: null, diccionario: new Set() };
-
-    // CARGAR DICCIONARIO (Usamos un repositorio de palabras comunes en español)
-    async function cargarDiccionario() {
-        try {
-            const resp = await fetch('https://raw.githubusercontent.com/pjnovas/spanish-words/master/listado-general.txt');
-            const texto = await resp.text();
-            // Limpiamos acentos para que sea más fácil jugar con dados
-            const palabras = texto.split('\n').map(p => 
-                p.trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-            );
-            state.diccionario = new Set(palabras);
-            console.log("Diccionario cargado: " + state.diccionario.size + " palabras.");
-        } catch (e) {
-            console.error("Error cargando diccionario, se permitirá jugar sin validación RAE.");
-        }
-    }
-    cargarDiccionario();
+    let state = { score: 0, round: 1, phase: 1, pool: [], activeDice: [], startTime: 0, timer: null };
 
     function getLetterData(l) {
         if (l === '★') return { c: 'blanco', p: 0 };
@@ -34,12 +125,12 @@
         return { c: 'blanco', p: 0 };
     }
 
-    function logic() {
+    function handleMainAction() {
         const btn = document.getElementById('btn-play');
         if (btn.innerText.includes("LANZAR") || btn.innerText.includes("SIGUIENTE") || btn.innerText.includes("NUEVA")) {
             startRound();
         } else {
-            validateWord();
+            validateAndScore();
         }
     }
 
@@ -48,11 +139,11 @@
         container.innerHTML = "";
         const msg = document.getElementById('msg');
         msg.style.display = "none";
-        msg.className = "";
         document.getElementById('word-input').value = "";
         document.getElementById('word-input').disabled = false;
         document.getElementById('word-input').focus();
 
+        // Lógica de bolsa (6 y 6)
         if (state.phase === 1) {
             state.pool = [...DADOS].sort(() => Math.random() - 0.5);
             state.activeDice = state.pool.slice(0, 6).map(d => d.c[Math.floor(Math.random()*6)]);
@@ -60,11 +151,11 @@
             state.activeDice = state.pool.slice(6).map(d => d.c[Math.floor(Math.random()*6)]);
         }
 
-        const isWhite = document.getElementById('cfg-style').value === 'blanco';
+        const useColors = document.getElementById('cfg-style').value === 'color';
         state.activeDice.forEach(l => {
             const data = getLetterData(l);
             const div = document.createElement('div');
-            div.className = `die ${isWhite ? 'c-blanco' : 'c-'+data.c} ${l==='★'?'comodin':''}`;
+            div.className = `die ${useColors ? 'c-'+data.c : 'c-blanco'} ${l==='★'?'comodin':''}`;
             div.innerHTML = `${l} <span class="val">${data.p > 0 ? data.p : ''}</span>`;
             container.appendChild(div);
         });
@@ -74,84 +165,106 @@
             document.getElementById('ui-timer').innerText = Math.floor((Date.now()-state.startTime)/1000) + "s";
         }, 1000);
         
-        document.getElementById('btn-play').innerText = "¡VALIDAR PALABRA!";
+        document.getElementById('btn-play').innerText = "¡ENVIAR PALABRA!";
     }
 
-    function validateWord() {
+    function validateAndScore() {
         let word = document.getElementById('word-input').value.toUpperCase().trim();
-        word = word.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Quitar acentos para comparar
+        word = word.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Quitar acentos
         
-        const msg = document.getElementById('msg');
-
-        // 1. COMPROBAR RAE (Diccionario)
-        if (state.diccionario.size > 0 && !state.diccionario.has(word)) {
-            msg.innerText = "❌ Esa palabra no está en el diccionario.";
-            msg.className = "error";
+        if (word.length < 2) {
+            alert("Escribe una palabra de al menos 2 letras");
             return;
         }
 
-        // 2. COMPROBAR DADOS Y COMODINES
+        // --- LÓGICA DE DADOS Y COMODINES ---
         let available = [...state.activeDice];
         let basicLetters = available.filter(x => x !== '★');
         let comodinesCount = available.filter(x => x === '★').length;
         
         let wordLetters = word.split('');
         let usedDiceIndices = new Set();
-        let neededFromComodines = new Set();
+        let unknownLetters = new Set();
 
-        // Identificar qué letras de la palabra no están en los dados
+        // 1. Ver qué letras de la palabra NO están en los dados básicos
         wordLetters.forEach(char => {
             if (basicLetters.includes(char)) {
+                // Letra encontrada en un dado
                 let idx = available.indexOf(char);
                 usedDiceIndices.add(idx);
             } else {
-                neededFromComodines.add(char);
+                // Letra no está, requiere comodín
+                unknownLetters.add(char);
             }
         });
 
-        if (neededFromComodines.size > comodinesCount) {
-            msg.innerText = `❌ No tienes suficientes comodines para las letras extra.`;
+        // 2. Comprobar si hay suficientes comodines para esas letras extra
+        if (unknownLetters.size > comodinesCount) {
+            const msg = document.getElementById('msg');
+            msg.innerText = `❌ No tienes suficientes comodines para: ${[...unknownLetters].join(', ')}`;
             msg.className = "error";
             return;
         }
 
-        // Marcar los dados de comodín como usados
-        let usedComodines = 0;
+        // 3. Marcar los dados de estrella usados por los comodines
+        let starsNeeded = unknownLetters.size;
+        let starsFound = 0;
         available.forEach((l, i) => {
-            if (l === '★' && usedComodines < neededFromComodines.size) {
+            if (l === '★' && starsFound < starsNeeded) {
                 usedDiceIndices.add(i);
-                usedComodines++;
+                starsFound++;
             }
         });
 
-        // 3. CÁLCULO DE PUNTOS
+        // --- CÁLCULO DE PUNTUACIÓN ---
         clearInterval(state.timer);
         let time = Math.floor((Date.now() - state.startTime)/1000);
         
-        let pVel = (time < 10) ? parseInt(document.getElementById('pts-v1').value) : (time < 15 ? 5 : (time < 25 ? 2 : 0));
-        let pLetras = wordLetters.reduce((acc, l) => acc + (basicLetters.includes(l) ? getLetterData(l).p : 0), 0);
+        // Tiempo: <10s (1º), <15s (2º), <20s (3º)
+        const v1 = parseInt(document.getElementById('pts-v1').value);
+        let pVel = (time < 10) ? v1 : (time < 15 ? 5 : (time < 20 ? 2 : 0));
+
+        // Puntos por letras (cada letra suma según su color de dado original)
+        let pLetras = 0;
+        wordLetters.forEach(l => {
+            if (basicLetters.includes(l)) {
+                pLetras += getLetterData(l).p;
+            }
+            // Los comodines valen 0 (blancos), así que no sumamos nada si la letra no estaba.
+        });
+
         let pPab = (word.length >= 10) ? parseInt(document.getElementById('pts-pab').value) : 0;
         let pSex = (usedDiceIndices.size === 6) ? parseInt(document.getElementById('pts-sex').value) : 0;
 
-        let total = pVel + pLetras + pPab + pSex;
-        state.score += total;
+        let totalRonda = pVel + pLetras + pPab + pSex;
+        state.score += totalRonda;
 
-        // FEEDBACK
-        msg.innerHTML = `✅ PALABRA VÁLIDA: +${total} pts <br> <small>(Vel: ${pVel}, Letras: ${pLetras}${pSex?', SEXTUPLETE!':''})</small>`;
+        // Feedback
+        const msg = document.getElementById('msg');
+        msg.innerHTML = `✅ ¡PALABRA ACEPTADA! +${totalRonda} pts<br>
+        <small>Vel: ${pVel} | Letras: ${pLetras}${pPab ? ' | Bono: '+pPab : ''}${pSex ? ' | SEXTUPLETE!':''}</small>`;
         msg.className = "success";
+        
         document.getElementById('ui-score').innerText = state.score;
         document.getElementById('word-input').disabled = true;
 
+        // Gestión de Turnos
         const btn = document.getElementById('btn-play');
         if (state.phase === 1) {
             state.phase = 2;
-            btn.innerText = "SIGUIENTE RONDA (6 SOBRANTES)";
+            btn.innerText = "SIGUIENTE RONDA (SOBRANTES)";
         } else {
             state.phase = 1;
             state.round++;
-            btn.innerText = (state.round > 6) ? "FIN DE PARTIDA" : "NUEVA PALABRA (BOLSA)";
-            if (state.round > 6) btn.disabled = true;
+            if (state.round > 6) {
+                btn.innerText = "FIN DE PARTIDA";
+                btn.disabled = true;
+            } else {
+                btn.innerText = "NUEVA PALABRA (BOLSA)";
+            }
         }
         document.getElementById('ui-round').innerText = (state.round > 6 ? 6 : state.round) + "/6";
     }
 </script>
+</body>
+</html>
