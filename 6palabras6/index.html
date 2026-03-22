@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PALABROS V11 - Desglose Total</title>
+    <title>PALABROS V12 - Valor Comodín</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -86,6 +86,7 @@
     <div class="input-group"><label>🔵 Azul</label><input type="number" id="p-azul" value="2"></div>
     <div class="input-group"><label>🟢 Verde</label><input type="number" id="p-verde" value="3"></div>
     <div class="input-group"><label>🟣 Morado</label><input type="number" id="p-mora" value="5"></div>
+    <div class="input-group"><label>⚪ Comodín (★)</label><input type="number" id="p-star" value="0"></div>
     <hr>
     <h3>Velocidad</h3>
     <div class="input-group"><label>< 10s</label><input type="number" id="v-10" value="10"></div>
@@ -184,7 +185,8 @@
             const div = document.createElement('div');
             div.className = `die ${finalColorClass}`;
             div.id = `die-${index}`;
-            div.innerHTML = `${letra} <span class="val">${info.pts > 0 ? info.pts : ''}</span>`;
+            // Muestra el valor del comodín si está configurado
+            div.innerHTML = `${letra} <span class="val">${letra === '★' ? (parseInt(document.getElementById('p-star').value) || '') : info.pts}</span>`;
             div.onclick = () => selectDie(index);
             container.appendChild(div);
             return { original: letra, fijada: letra, pts: info.pts, colorClass: finalColorClass };
@@ -212,7 +214,8 @@
                 state.activeDiceData[idx].fijada = l;
                 state.history.starLog.push(l);
                 const el = document.getElementById(`die-${idx}`);
-                el.innerHTML = `${l} <span class="val">★</span>`;
+                const starVal = parseInt(document.getElementById('p-star').value) || 0;
+                el.innerHTML = `${l} <span class="val">${starVal > 0 ? starVal : '★'}</span>`;
                 el.className = "die comodin-fijado";
                 addLetter(idx, l); 
             };
@@ -229,7 +232,8 @@
         if (die.original === '★' && !state.wordStack.some(item => item.diceIdx === last.diceIdx)) {
             die.fijada = '★';
             const el = document.getElementById(`die-${last.diceIdx}`);
-            el.innerHTML = `★ <span class="val"></span>`;
+            const starVal = parseInt(document.getElementById('p-star').value) || 0;
+            el.innerHTML = `★ <span class="val">${starVal > 0 ? starVal : ''}</span>`;
             el.className = `die ${die.colorClass}`;
         }
         updateDisplay();
@@ -238,7 +242,7 @@
     function updateDisplay() { document.getElementById('display-word').innerText = state.wordStack.map(s => s.letra).join(''); }
 
     function getLetterInfo(l) {
-        if (l === '★') return { color: 'blanco', pts: 0 };
+        if (l === '★') return { color: 'blanco', pts: parseInt(document.getElementById('p-star').value) || 0 };
         if ("AEORS".includes(l)) return { color: 'rojo', pts: parseInt(document.getElementById('p-rojo').value) || 1 };
         if ("ILNDT".includes(l)) return { color: 'azul', pts: parseInt(document.getElementById('p-azul').value) || 2 };
         if ("CBMP".includes(l)) return { color: 'verde', pts: parseInt(document.getElementById('p-verde').value) || 3 };
@@ -250,19 +254,20 @@
         clearInterval(state.timer);
         const time = Math.floor((Date.now() - state.startTime) / 1000);
         
-        // Puntos Velocidad
         let pVel = 0, tag = "Lento";
         if (time < 10) { pVel = parseInt(document.getElementById('v-10').value); tag = "< 10s"; }
         else if (time < 15) { pVel = parseInt(document.getElementById('v-15').value); tag = "< 15s"; }
         else if (time < 20) { pVel = parseInt(document.getElementById('v-20').value); tag = "< 20s"; }
         else if (time < 30) { pVel = parseInt(document.getElementById('v-30').value); tag = "< 30s"; }
 
-        // Puntos Letras y Bonos
-        let pLetras = state.wordStack.reduce((sum, item) => sum + state.activeDiceData[item.diceIdx].pts, 0);
+        let pLetras = state.wordStack.reduce((sum, item) => {
+            const die = state.activeDiceData[item.diceIdx];
+            return sum + (die.original === '★' ? (parseInt(document.getElementById('p-star').value) || 0) : die.pts);
+        }, 0);
+
         let pSex = (new Set(state.wordStack.map(i => i.diceIdx)).size === parseInt(document.getElementById('cfg-n-dice').value)) ? parseInt(document.getElementById('pts-sex').value) : 0;
         let pPab = (state.wordStack.length >= 10) ? parseInt(document.getElementById('pts-pab').value) : 0;
         
-        // Acumular totales para el resumen
         state.totals.letters += pLetras;
         state.totals.speed += pVel;
         state.totals.bonuses += (pSex + pPab);
@@ -287,23 +292,15 @@
         let v = 0, c = 0;
         state.history.words.join('').split('').forEach(char => "AEIOU".includes(char) ? v++ : c++);
         document.getElementById('final-ling').innerText = `${v}V / ${c}C`;
-
-        // Desglose de Totales
         document.getElementById('final-points-breakdown').innerHTML = `
             <li><span>Por valor de Letras:</span> <strong>${state.totals.letters}</strong></li>
             <li><span>Por Velocidad:</span> <strong>${state.totals.speed}</strong></li>
             <li><span>Por Premios (Sext/Pab):</span> <strong>${state.totals.bonuses}</strong></li>
         `;
-
-        // Lista velocidad
         document.getElementById('final-speed-list').innerHTML = state.history.speedDetail.map(s => 
             `<li><span>R${s.round}: ${s.time}s</span> <span class="tag c-verde">${s.tag}</span></li>`
         ).join('');
-
-        // Lista palabras
         document.getElementById('final-words-list').innerHTML = state.history.words.map((w, i) => `<li><span>R${i+1}: <strong>${w}</strong></span> <span>${w.length} letras</span></li>`).join('');
-        
-        // Comodines
         document.getElementById('final-stars-list').innerHTML = state.history.starLog.length ? state.history.starLog.map(l => `<li><span>★ usado como:</span> <strong>${l}</strong></li>`).join('') : "<li>No se usaron comodines</li>";
     }
 
