@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PALABROS V5 - El Juego Definitivo</title>
+    <title>PALABROS V6 - Estilo Personalizado</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -22,7 +22,7 @@
         
         .input-group { margin-bottom: 8px; }
         label { display: block; font-size: 9px; color: var(--primary); margin-bottom: 2px; text-transform: uppercase; font-weight: 700; }
-        input { width: 100%; padding: 6px; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 6px; font-size: 0.85rem; }
+        input, select { width: 100%; padding: 6px; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 6px; font-size: 0.85rem; }
         hr { border: 0; border-top: 1px solid #334155; margin: 12px 0; }
         h3 { font-size: 11px; margin-bottom: 8px; color: var(--blanco); text-transform: uppercase; }
 
@@ -38,6 +38,8 @@
         
         .die { aspect-ratio: 1/1; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 900; position: relative; box-shadow: 0 5px 0 rgba(0,0,0,0.4); cursor: pointer; user-select: none; transition: 0.1s; }
         .die:active { transform: scale(0.95) translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.4); }
+        
+        /* Estilo Comodín Fijado (siempre destaca) */
         .die.comodin-fijado { color: #ffffff !important; background: #e11d48 !important; box-shadow: 0 5px 0 #9f1239; }
         .die .val { position: absolute; bottom: 4px; right: 8px; font-size: 0.7rem; font-weight: 700; opacity: 0.8; }
 
@@ -52,6 +54,7 @@
 
         #msg { padding: 10px; text-align: center; border-radius: 10px; width: 100%; display: none; font-weight: 700; font-size: 0.8rem; margin-bottom: 5px; background: #10b981; color: white; }
 
+        /* Clases de colores */
         .c-rojo { background: var(--rojo); color: white; }
         .c-azul { background: var(--azul); color: white; }
         .c-verde { background: var(--verde); color: white; }
@@ -66,6 +69,14 @@
 <div id="config-panel">
     <h2 style="color:var(--primary); margin-bottom:15px; text-align:center">AJUSTES</h2>
     
+    <div class="input-group">
+        <label>Estilo de Dados</label>
+        <select id="cfg-style">
+            <option value="color">Multicolor (por puntos)</option>
+            <option value="white">Todo Blanco (Minimalista)</option>
+        </select>
+    </div>
+
     <div class="input-group"><label>Dados por Tirada (N)</label><input type="number" id="cfg-n-dice" value="6"></div>
     
     <hr>
@@ -144,6 +155,7 @@
 
     function startRound() {
         const N = parseInt(document.getElementById('cfg-n-dice').value);
+        const style = document.getElementById('cfg-style').value;
         const container = document.getElementById('dice-container');
         container.innerHTML = "";
         document.getElementById('display-word').innerText = "";
@@ -156,12 +168,16 @@
             const letra = d.c[Math.floor(Math.random() * 6)];
             const info = getLetterInfo(letra);
             const div = document.createElement('div');
-            div.className = `die c-${info.color}`;
+            
+            // Si el estilo es 'white', forzamos c-blanco, si no, usamos el color de info
+            const finalColorClass = (style === 'white') ? 'c-blanco' : `c-${info.color}`;
+            
+            div.className = `die ${finalColorClass}`;
             div.id = `die-${index}`;
             div.innerHTML = `${letra} <span class="val">${info.pts > 0 ? info.pts : ''}</span>`;
             div.onclick = () => selectDie(index);
             container.appendChild(div);
-            return { original: letra, fijada: letra, pts: info.pts, color: info.color };
+            return { original: letra, fijada: letra, pts: info.pts, colorClass: finalColorClass };
         });
 
         state.startTime = Date.now();
@@ -188,7 +204,7 @@
                 state.activeDiceData[idx].fijada = l;
                 const el = document.getElementById(`die-${idx}`);
                 el.innerHTML = `${l} <span class="val">★</span>`;
-                el.className = "die comodin-fijado";
+                el.className = "die comodin-fijado"; // El comodín activo siempre destaca
                 addLetter(idx, l); 
             };
             selector.appendChild(b);
@@ -210,7 +226,7 @@
                 die.fijada = '★';
                 const el = document.getElementById(`die-${last.diceIdx}`);
                 el.innerHTML = `★ <span class="val"></span>`;
-                el.className = "die c-blanco";
+                el.className = `die ${die.colorClass}`; // Vuelve a su estilo original (blanco o color)
             }
         }
         updateDisplay();
