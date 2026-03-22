@@ -208,13 +208,15 @@
         document.getElementById('btn-play').innerText = "¡LISTO!";
     }
 
-    function selectDie(idx) {
-        if(state.wordStack.some(i => i.diceIdx === idx)) return;
+function selectDie(idx) {
+        // Eliminada la restricción de "un solo uso por dado"
         const die = state.activeDiceData[idx];
-        if (die.fijada === '★') showStarSelector(idx);
-        else addLetter(idx, die.fijada);
+        if (die.fijada === '★') {
+            showStarSelector(idx);
+        } else {
+            addLetter(idx, die.fijada);
+        }
     }
-
     function showStarSelector(idx) {
         const selector = document.getElementById('star-selector');
         selector.innerHTML = ""; selector.style.display = "grid";
@@ -240,7 +242,12 @@
         if (state.wordStack.length === 0) return;
         const last = state.wordStack.pop();
         const die = state.activeDiceData[last.diceIdx];
-        if (die.original === '★' && !state.wordStack.some(item => item.diceIdx === last.diceIdx)) {
+        
+        // Solo reseteamos el comodín a '★' si ya no queda NINGUNA instancia 
+        // de ese dado en la palabra actual
+        const aunEnUso = state.wordStack.some(item => item.diceIdx === last.diceIdx);
+        
+        if (die.original === '★' && !aunEnUso) {
             die.fijada = '★';
             const el = document.getElementById(`die-${last.diceIdx}`);
             const starVal = parseInt(document.getElementById('p-star').value) || 0;
