@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PALABROS - El Juego de Dados</title>
+    <title>PALABROS - El Juego de Dados Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -11,60 +11,78 @@
             --rojo: #ef4444; --azul: #3b82f6; --verde: #10b981; --morado: #a855f7; --blanco: #ffffff;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; touch-action: manipulation; }
-        body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow: hidden; }
         
-        header { width: 100%; padding: 15px; text-align: center; background: #1e293b; border-bottom: 3px solid var(--primary); }
-        h1 { font-weight: 900; letter-spacing: 4px; font-size: 1.8rem; color: var(--primary); text-transform: uppercase; }
+        /* Evitar scroll en el body para control total */
+        body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        /* HEADER FIJO */
+        header { width: 100%; padding: 12px; text-align: center; background: #1e293b; border-bottom: 3px solid var(--primary); z-index: 10; flex-shrink: 0; }
+        h1 { font-weight: 900; letter-spacing: 4px; font-size: 1.6rem; color: var(--primary); text-transform: uppercase; }
 
-        #config-panel { position: fixed; top: 0; right: -320px; width: 300px; height: 100%; background: var(--card-bg); z-index: 1000; padding: 20px; transition: 0.3s; }
+        /* PANEL CONFIG (Mejorado scroll) */
+        #config-panel { position: fixed; top: 0; right: -330px; width: 320px; height: 100%; background: var(--card-bg); z-index: 1000; padding: 20px; transition: 0.3s; overflow-y: auto; box-shadow: -10px 0 20px rgba(0,0,0,0.5); }
         #config-panel.open { right: 0; }
-        .config-btn { position: fixed; top: 15px; right: 15px; z-index: 1001; background: #1e293b; border: 1px solid var(--primary); border-radius: 50%; width: 45px; height: 45px; font-size: 20px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .config-btn { position: fixed; top: 12px; right: 12px; z-index: 1001; background: #1e293b; border: 1px solid var(--primary); border-radius: 50%; width: 45px; height: 45px; font-size: 20px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         
-        .stats { display: flex; justify-content: space-around; width: 95%; max-width: 500px; margin: 10px 0; background: var(--card-bg); padding: 10px; border-radius: 15px; }
-        .stat-val { font-weight: 900; font-size: 1.2rem; display: block; color: var(--primary); }
-        .stat-lbl { font-size: 9px; color: #94a3b8; text-transform: uppercase; }
+        .input-group { margin-bottom: 10px; }
+        label { display: block; font-size: 10px; color: var(--primary); margin-bottom: 2px; text-transform: uppercase; font-weight: 700; }
+        input, select { width: 100%; padding: 8px; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 8px; font-size: 0.9rem; }
+        hr { border: 0; border-top: 1px solid #334155; margin: 15px 0; }
 
-        #game-area { width: 95%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; align-items: center; flex: 1; justify-content: center; }
+        /* STATS FIJAS */
+        .stats { display: flex; justify-content: space-around; width: 100%; background: var(--card-bg); padding: 8px; border-bottom: 1px solid #334155; flex-shrink: 0; }
+        .stat-box { text-align: center; }
+        .stat-val { font-weight: 900; font-size: 1.1rem; display: block; color: var(--blanco); }
+        .stat-lbl { font-size: 8px; color: #94a3b8; text-transform: uppercase; }
+
+        /* AREA DE JUEGO PRINCIPAL CON FLEX */
+        #game-area { flex-grow: 1; width: 100%; max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; padding: 10px; overflow: hidden; }
         
-        #display-word-container {
-            width: 100%; position: relative; display: flex; align-items: center; gap: 10px;
-        }
+        /* PALABRA FIJA ARRIBA */
+        #display-word-container { width: 100%; flex-shrink: 0; margin-bottom: 10px; }
         #display-word {
-            min-height: 70px; flex-grow: 1; background: #020617; border: 2px solid #334155;
-            border-radius: 15px; display: flex; align-items: center; justify-content: center;
-            font-size: 2.2rem; font-weight: 900; color: var(--blanco); letter-spacing: 2px; text-transform: uppercase;
+            min-height: 60px; width: 100%; background: #020617; border: 2px solid #334155;
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; font-weight: 900; color: var(--blanco); letter-spacing: 2px; text-transform: uppercase;
         }
 
-        .dice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; }
+        /* AREA DE DADOS CON SCROLL INTERNO */
+        #dice-scroll-area { flex-grow: 1; width: 100%; overflow-y: auto; padding: 5px; margin-bottom: 10px; border-radius: 12px; background: rgba(0,0,0,0.1); }
+        .dice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
         
         @keyframes shake {
-            0% { transform: rotate(0deg); } 25% { transform: rotate(5deg); } 50% { transform: rotate(-5deg); } 75% { transform: rotate(5deg); } 100% { transform: rotate(0deg); }
+            0% { transform: rotate(0deg); } 25% { transform: rotate(3deg); } 50% { transform: rotate(-3deg); } 75% { transform: rotate(3deg); } 100% { transform: rotate(0deg); }
         }
         .shaking { animation: shake 0.3s ease-in-out; }
 
         .die {
-            aspect-ratio: 1/1; border-radius: 18px; display: flex; align-items: center; justify-content: center;
-            font-size: 2.5rem; font-weight: 900; position: relative; box-shadow: 0 6px 0 rgba(0,0,0,0.4);
+            aspect-ratio: 1/1; border-radius: 15px; display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; font-weight: 900; position: relative; box-shadow: 0 5px 0 rgba(0,0,0,0.4);
             cursor: pointer; user-select: none; transition: transform 0.1s;
         }
-        .die:active { transform: scale(0.95) translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.4); }
+        .die:active { transform: scale(0.95) translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.4); }
         .die.comodin { color: #ff0000; }
-        .die .val { position: absolute; bottom: 5px; right: 10px; font-size: 0.8rem; font-weight: 700; }
+        .die .val { position: absolute; bottom: 4px; right: 8px; font-size: 0.7rem; font-weight: 700; opacity: 0.7; }
 
-        .controls { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; width: 100%; margin-top: 10px; }
-        .btn { padding: 18px; border: none; border-radius: 15px; font-weight: 900; text-transform: uppercase; cursor: pointer; font-size: 1rem; }
-        .btn-del { background: #334155; color: white; }
+        /* CONTROLES FIJOS ABAJO */
+        .controls-container { width: 100%; flex-shrink: 0; padding-top: 5px; background: var(--bg-color); }
+        .controls { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; width: 100%; }
+        .btn { padding: 15px; border: none; border-radius: 12px; font-weight: 900; text-transform: uppercase; cursor: pointer; font-size: 0.9rem; }
+        .btn-del { background: #334155; color: white; border: 1px solid #475569; }
         .btn-main { background: var(--primary); color: #000; box-shadow: 0 4px 0 #b45309; }
+        .btn-main:active { transform: translateY(4px); box-shadow: none; }
 
+        /* SELECTOR DE LETRA */
         #star-selector {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.98);
-            z-index: 2000; display: none; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 15px; align-content: center;
+            z-index: 2000; display: none; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 15px; align-content: center; overflow-y: auto;
         }
-        .star-letter { background: var(--primary); color: #000; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 900; border-radius: 12px; font-size: 1.4rem; }
+        .star-letter { background: var(--primary); color: #000; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 900; border-radius: 10px; font-size: 1.2rem; }
 
-        #msg { padding: 12px; text-align: center; border-radius: 12px; width: 100%; display: none; font-weight: 700; }
+        #msg { padding: 10px; text-align: center; border-radius: 10px; width: 100%; display: none; font-weight: 700; font-size: 0.8rem; margin-bottom: 5px; }
         .success { background: #10b981; color: white; display: block !important; }
 
+        /* COLORES DADOS */
         .c-rojo { background: var(--rojo); color: white; }
         .c-azul { background: var(--azul); color: white; }
         .c-verde { background: var(--verde); color: white; }
@@ -77,11 +95,27 @@
 <button class="config-btn" onclick="document.getElementById('config-panel').classList.toggle('open')">⚙️</button>
 
 <div id="config-panel">
-    <h2 style="color:var(--primary); margin-bottom:15px">AJUSTES</h2>
-    <div class="input-group"><label>Dados por Tirada (N)</label><input type="number" id="cfg-n-dice" value="6" min="1" max="11"></div>
-    <div class="input-group"><label>Bono Sextuplete</label><input type="number" id="pts-sex" value="20"></div>
-    <div class="input-group"><label>Bono Palabrón (10+)</label><input type="number" id="pts-pab" value="10"></div>
-    <button class="btn btn-main" style="width:100%" onclick="document.getElementById('config-panel').classList.remove('open')">ACEPTAR</button>
+    <h2 style="color:var(--primary); margin-bottom:15px; text-align:center">AJUSTES "PALABROS"</h2>
+    
+    <div class="input-group">
+        <label>Dados por Tirada (N)</label>
+        <input type="number" id="cfg-n-dice" value="6" min="1" max="11">
+    </div>
+    
+    <hr>
+    <p style="font-size:10px; color:var(--blanco); margin-bottom:10px; font-weight:700">PUNTOS BONOS</p>
+    <div class="input-group"><label>Bono Velocidad (1º Puesto)</label><input type="number" id="pts-v1" value="10"></div>
+    <div class="input-group"><label>Bono Palabrón (10+ letras)</label><input type="number" id="pts-pab" value="10"></div>
+    <div class="input-group"><label>Bono Sextuplete (Usar los N dados)</label><input type="number" id="pts-sex" value="20"></div>
+
+    <hr>
+    <p style="font-size:10px; color:var(--blanco); margin-bottom:10px; font-weight:700">PUNTOS POR LETRA/COLOR</p>
+    <div class="input-group"><label>🔴 Rojo (A,E,O,R,S)</label><input type="number" id="p-rojo" value="1"></div>
+    <div class="input-group"><label>🔵 Azul (I,L,D,N,T)</label><input type="number" id="p-azul" value="2"></div>
+    <div class="input-group"><label>🟢 Verde (C,B,M,P)</label><input type="number" id="p-verde" value="3"></div>
+    <div class="input-group"><label>🟣 Morado (Difíciles/U)</label><input type="number" id="p-mora" value="5"></div>
+
+    <button class="btn btn-main" style="width:100%; margin-top:20px" onclick="document.getElementById('config-panel').classList.remove('open')">GUARDAR Y CERRAR</button>
 </div>
 
 <header><h1>PALABROS</h1></header>
@@ -97,11 +131,16 @@
         <div id="display-word"></div>
     </div>
     <div id="msg"></div>
-    <div id="dice-container" class="dice-grid"></div>
     
-    <div class="controls">
-        <button class="btn btn-del" onclick="deleteLast()">Borrar</button>
-        <button id="btn-play" class="btn btn-main" onclick="handleAction()">Lanzar Dados</button>
+    <div id="dice-scroll-area">
+        <div id="dice-container" class="dice-grid"></div>
+    </div>
+    
+    <div class="controls-container">
+        <div class="controls">
+            <button class="btn btn-del" onclick="deleteLast()">Borrar</button>
+            <button id="btn-play" class="btn btn-main" onclick="handleAction()">Lanzar Dados</button>
+        </div>
     </div>
 </main>
 
@@ -121,10 +160,10 @@
 
     function getLetterInfo(l) {
         if (l === '★') return { color: 'blanco', pts: 0 };
-        if ("AEORS".includes(l)) return { color: 'rojo', pts: 1 };
-        if ("ILNDT".includes(l)) return { color: 'azul', pts: 2 };
-        if ("CBMP".includes(l)) return { color: 'verde', pts: 3 };
-        if ("UFGHJÑVQZU".includes(l)) return { color: 'morado', pts: 5 };
+        if ("AEORS".includes(l)) return { color: 'rojo', pts: parseInt(document.getElementById('p-rojo').value) };
+        if ("ILNDT".includes(l)) return { color: 'azul', pts: parseInt(document.getElementById('p-azul').value) };
+        if ("CBMP".includes(l)) return { color: 'verde', pts: parseInt(document.getElementById('p-verde').value) };
+        if ("UFGHJÑVQZU".includes(l)) return { color: 'morado', pts: parseInt(document.getElementById('p-mora').value) };
         return { color: 'blanco', pts: 0 };
     }
 
@@ -138,13 +177,17 @@
         const N = parseInt(document.getElementById('cfg-n-dice').value);
         const container = document.getElementById('dice-container');
         container.innerHTML = "";
-        container.classList.add('shaking');
-        setTimeout(() => container.classList.remove('shaking'), 300);
+        
+        // Efecto sacudida
+        const scrollArea = document.getElementById('dice-scroll-area');
+        scrollArea.classList.add('shaking');
+        setTimeout(() => scrollArea.classList.remove('shaking'), 300);
         
         document.getElementById('display-word').innerText = "";
         document.getElementById('msg').style.display = "none";
         state.wordStack = [];
 
+        // Lógica de 6+6 adaptada a N dados
         let elegidos = [];
         if (state.phase === 1) {
             let mezclada = [...DADOS_MODEL].sort(() => Math.random() - 0.5);
@@ -160,10 +203,12 @@
             }
         }
 
+        // Crear los dados en la interfaz
         state.activeDiceData = elegidos.map((d, index) => {
             const letra = d.c[Math.floor(Math.random() * 6)];
             const info = getLetterInfo(letra);
             const div = document.createElement('div');
+            // Usamos siempre multicolor para "PALABROS"
             div.className = `die c-${info.color} ${letra === '★' ? 'comodin' : ''}`;
             div.id = `die-${index}`;
             div.innerHTML = `${letra} <span class="val">${info.pts > 0 ? info.pts : ''}</span>`;
@@ -220,36 +265,42 @@
         clearInterval(state.timer);
         const time = Math.floor((Date.now() - state.startTime) / 1000);
         
-        let pVel = (time < 10) ? 10 : (time < 15 ? 5 : (time < 20 ? 2 : 0));
+        // Puntos Velocidad
+        const ptsV1 = parseInt(document.getElementById('pts-v1').value);
+        let pVel = (time < 10) ? ptsV1 : (time < 15 ? 5 : (time < 20 ? 2 : 0));
         
-        // Sumamos los puntos de cada letra según el dado del que vino
+        // Sumamos los puntos de cada letra pulsada (Repetición libre)
         let pLetras = state.wordStack.reduce((sum, item) => sum + state.activeDiceData[item.diceIdx].pts, 0);
         
-        // Sextuplete: ¿Cuántos dados DISTINTOS se han usado?
+        // Sextuplete adaptado: ¿Cuántos dados DISTINTOS se han usado de los N lanzados?
         const distinctDiceUsed = new Set(state.wordStack.map(item => item.diceIdx)).size;
         const N = parseInt(document.getElementById('cfg-n-dice').value);
-        let pSex = (distinctDiceUsed === N) ? parseInt(document.getElementById('pts-sex').value) : 0;
+        const ptsSex = parseInt(document.getElementById('pts-sex').value);
+        let pSex = (distinctDiceUsed === N) ? ptsSex : 0;
         
         // Bono Palabrón (Longitud de la palabra)
-        let pPab = (state.wordStack.length >= 10) ? parseInt(document.getElementById('pts-pab').value) : 0;
+        const ptsPab = parseInt(document.getElementById('pts-pab').value);
+        let pPab = (state.wordStack.length >= 10) ? ptsPab : 0;
 
         const total = pVel + pLetras + pSex + pPab;
         state.score += total;
 
+        // Feedback visual
         const msg = document.getElementById('msg');
-        msg.innerHTML = `🔥 +${total} PUNTOS <br><small>Letras: ${pLetras} | Tiempo: ${pVel} ${pSex ? '| SEXTUPLETE!' : ''}</small>`;
+        msg.innerHTML = `🔥 +${total} PUNTOS <br><small>Letras: ${pLetras} | Tiempo: ${pVel} ${pSex ? '| SEXTUPLETE!' : ''}${pPab ? ' | PALABRÓN!' : ''}</small>`;
         msg.className = "success";
         
         document.getElementById('ui-score').innerText = state.score;
         const btn = document.getElementById('btn-play');
 
+        // Lógica de turnos
         if (state.phase === 1) {
             state.phase = 2;
-            btn.innerText = "SIGUIENTE RONDA";
+            btn.innerText = "SIGUIENTE RONDA (SOBRANTES)";
         } else {
             state.phase = 1;
             state.round++;
-            btn.innerText = (state.round > 6) ? "FIN" : "NUEVA PALABRA";
+            btn.innerText = (state.round > 6) ? "FIN DE PARTIDA" : "NUEVA PALABRA (BOLSA)";
             if (state.round > 6) btn.disabled = true;
         }
         document.getElementById('ui-round').innerText = (state.round > 6 ? 6 : state.round) + "/6";
