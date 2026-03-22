@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="diccionario.js"></script>
     <style>
+        .btn-reroll { background: #f97316; color: white; font-size: 0.7rem !important; }
         :root {
             --bg-color: #0f172a; --card-bg: #1e293b; --primary: #f59e0b; --text-color: #f8fafc;
             --rojo: #ef4444; --azul: #3b82f6; --verde: #10b981; --morado: #a855f7; --blanco: #ffffff;
@@ -113,10 +114,11 @@
     <div id="msg"></div>
     <div id="round-sugs"></div> <div id="dice-scroll-area"><div id="dice-container" class="dice-grid"></div></div>
     <div class="controls-container">
-        <div class="controls">
-            <button class="btn btn-del" onclick="deleteLast()">Borrar</button>
-            <button id="btn-play" class="btn btn-main" onclick="handleAction()">Lanzar Dados</button>
-        </div>
+        <div class="controls" style="grid-template-columns: 1fr 1fr 2fr;">
+    <button class="btn btn-del" onclick="deleteLast()">Borrar</button>
+    <button class="btn btn-reroll" onclick="if(confirm('¿Re-lanzar dados y reiniciar tiempo?')) startRound()">Re-lanzar</button> 
+    <button id="btn-play" class="btn btn-main" onclick="handleAction()">Lanzar Dados</button>
+</div>
         <button class="btn btn-reset" onclick="confirmReset()">Iniciar Partida</button>
     </div>
 </main>
