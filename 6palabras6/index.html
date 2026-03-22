@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PALABROS V6 - Estilo Personalizado</title>
+    <title>PALABROS V7 - Estadísticas Finales</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -38,8 +38,6 @@
         
         .die { aspect-ratio: 1/1; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 900; position: relative; box-shadow: 0 5px 0 rgba(0,0,0,0.4); cursor: pointer; user-select: none; transition: 0.1s; }
         .die:active { transform: scale(0.95) translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.4); }
-        
-        /* Estilo Comodín Fijado (siempre destaca) */
         .die.comodin-fijado { color: #ffffff !important; background: #e11d48 !important; box-shadow: 0 5px 0 #9f1239; }
         .die .val { position: absolute; bottom: 4px; right: 8px; font-size: 0.7rem; font-weight: 700; opacity: 0.8; }
 
@@ -54,7 +52,15 @@
 
         #msg { padding: 10px; text-align: center; border-radius: 10px; width: 100%; display: none; font-weight: 700; font-size: 0.8rem; margin-bottom: 5px; background: #10b981; color: white; }
 
-        /* Clases de colores */
+        /* RESUMEN FINAL */
+        #summary-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 3000; display: none; flex-direction: column; padding: 20px; overflow-y: auto; }
+        .summary-card { background: var(--card-bg); padding: 20px; border-radius: 20px; border: 2px solid var(--primary); margin-bottom: 20px; }
+        .summary-title { color: var(--primary); font-size: 1.5rem; font-weight: 900; text-align: center; margin-bottom: 20px; }
+        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .summary-stat { background: #0f172a; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid #334155; }
+        .summary-list { margin-top: 10px; list-style: none; font-size: 0.9rem; }
+        .summary-list li { padding: 5px 0; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; }
+
         .c-rojo { background: var(--rojo); color: white; }
         .c-azul { background: var(--azul); color: white; }
         .c-verde { background: var(--verde); color: white; }
@@ -68,37 +74,25 @@
 
 <div id="config-panel">
     <h2 style="color:var(--primary); margin-bottom:15px; text-align:center">AJUSTES</h2>
-    
-    <div class="input-group">
-        <label>Estilo de Dados</label>
-        <select id="cfg-style">
-            <option value="color">Multicolor (por puntos)</option>
-            <option value="white">Todo Blanco (Minimalista)</option>
-        </select>
-    </div>
-
-    <div class="input-group"><label>Dados por Tirada (N)</label><input type="number" id="cfg-n-dice" value="6"></div>
-    
+    <div class="input-group"><label>Estilo de Dados</label><select id="cfg-style"><option value="color">Multicolor</option><option value="white">Blanco</option></select></div>
+    <div class="input-group"><label>Dados (N)</label><input type="number" id="cfg-n-dice" value="6"></div>
     <hr>
-    <h3>Bonos Especiales</h3>
-    <div class="input-group"><label>Sextuplete (Usar todos)</label><input type="number" id="pts-sex" value="20"></div>
-    <div class="input-group"><label>Palabrón (10+ letras)</label><input type="number" id="pts-pab" value="10"></div>
-    
+    <h3>Bonos</h3>
+    <div class="input-group"><label>Sextuplete</label><input type="number" id="pts-sex" value="20"></div>
+    <div class="input-group"><label>Palabrón (10+)</label><input type="number" id="pts-pab" value="10"></div>
     <hr>
-    <h3>Puntos Letra/Color</h3>
-    <div class="input-group"><label>🔴 Rojo (A,E,O,R,S)</label><input type="number" id="p-rojo" value="1"></div>
-    <div class="input-group"><label>🔵 Azul (I,L,D,N,T)</label><input type="number" id="p-azul" value="2"></div>
-    <div class="input-group"><label>🟢 Verde (C,B,M,P)</label><input type="number" id="p-verde" value="3"></div>
-    <div class="input-group"><label>🟣 Morado (Difíciles)</label><input type="number" id="p-mora" value="5"></div>
-
+    <h3>Puntos</h3>
+    <div class="input-group"><label>🔴 Rojo</label><input type="number" id="p-rojo" value="1"></div>
+    <div class="input-group"><label>🔵 Azul</label><input type="number" id="p-azul" value="2"></div>
+    <div class="input-group"><label>🟢 Verde</label><input type="number" id="p-verde" value="3"></div>
+    <div class="input-group"><label>🟣 Morado</label><input type="number" id="p-mora" value="5"></div>
     <hr>
-    <h3>Premios Velocidad</h3>
+    <h3>Velocidad</h3>
     <div class="input-group"><label>< 10s</label><input type="number" id="v-10" value="10"></div>
     <div class="input-group"><label>< 15s</label><input type="number" id="v-15" value="5"></div>
     <div class="input-group"><label>< 20s</label><input type="number" id="v-20" value="3"></div>
     <div class="input-group"><label>< 30s</label><input type="number" id="v-30" value="1"></div>
-
-    <button class="btn btn-main" style="width:100%; margin-top:10px" onclick="document.getElementById('config-panel').classList.remove('open')">GUARDAR</button>
+    <button class="btn btn-main" style="width:100%" onclick="document.getElementById('config-panel').classList.remove('open')">GUARDAR</button>
 </div>
 
 <header><h1>PALABROS</h1></header>
@@ -112,9 +106,7 @@
 <main id="game-area">
     <div id="display-word"></div>
     <div id="msg"></div>
-    <div id="dice-scroll-area">
-        <div id="dice-container" class="dice-grid"></div>
-    </div>
+    <div id="dice-scroll-area"><div id="dice-container" class="dice-grid"></div></div>
     <div class="controls-container">
         <div class="controls">
             <button class="btn btn-del" onclick="deleteLast()">Borrar</button>
@@ -122,6 +114,25 @@
         </div>
     </div>
 </main>
+
+<div id="summary-screen">
+    <div class="summary-card">
+        <div class="summary-title">¡PARTIDA FINALIZADA!</div>
+        <div class="summary-grid">
+            <div class="summary-stat"><span class="stat-lbl">Puntos Totales</span><span id="final-score" class="stat-val">0</span></div>
+            <div class="summary-stat"><span class="stat-lbl">Vocales/Cons.</span><span id="final-ling" class="stat-val">0/0</span></div>
+        </div>
+        <h3>Tus Palabras:</h3>
+        <ul id="final-words-list" class="summary-list"></ul>
+        <hr>
+        <h3>Uso de Comodines:</h3>
+        <ul id="final-stars-list" class="summary-list"></ul>
+        <hr>
+        <h3>Tamaños de Palabra:</h3>
+        <ul id="final-sizes-list" class="summary-list"></ul>
+    </div>
+    <button class="btn btn-main" onclick="resetGame()">JUGAR OTRA VEZ</button>
+</div>
 
 <div id="star-selector"></div>
 
@@ -136,16 +147,10 @@
         {c:['U','P','M','F','G','★']}, {c:['U','P','H','J','Ñ','★']}, {c:['U','U','V','Q','Z','★']}
     ];
 
-    let state = { score: 0, round: 1, activeDiceData: [], wordStack: [], startTime: 0, timer: null };
-
-    function getLetterInfo(l) {
-        if (l === '★') return { color: 'blanco', pts: 0 };
-        if ("AEORS".includes(l)) return { color: 'rojo', pts: parseInt(document.getElementById('p-rojo').value) };
-        if ("ILNDT".includes(l)) return { color: 'azul', pts: parseInt(document.getElementById('p-azul').value) };
-        if ("CBMP".includes(l)) return { color: 'verde', pts: parseInt(document.getElementById('p-verde').value) };
-        if ("UFGHJÑVQZU".includes(l)) return { color: 'morado', pts: parseInt(document.getElementById('p-mora').value) };
-        return { color: 'blanco', pts: 0 };
-    }
+    let state = { 
+        score: 0, round: 1, activeDiceData: [], wordStack: [], startTime: 0, timer: null,
+        history: { words: [], starLog: [], sizes: {} } 
+    };
 
     function handleAction() {
         const btn = document.getElementById('btn-play');
@@ -154,6 +159,7 @@
     }
 
     function startRound() {
+        if(state.round > 6) return showSummary();
         const N = parseInt(document.getElementById('cfg-n-dice').value);
         const style = document.getElementById('cfg-style').value;
         const container = document.getElementById('dice-container');
@@ -163,15 +169,11 @@
         state.wordStack = [];
 
         let elegidos = [...DADOS_MODEL].sort(() => Math.random() - 0.5).slice(0, N);
-
         state.activeDiceData = elegidos.map((d, index) => {
             const letra = d.c[Math.floor(Math.random() * 6)];
             const info = getLetterInfo(letra);
-            const div = document.createElement('div');
-            
-            // Si el estilo es 'white', forzamos c-blanco, si no, usamos el color de info
             const finalColorClass = (style === 'white') ? 'c-blanco' : `c-${info.color}`;
-            
+            const div = document.createElement('div');
             div.className = `die ${finalColorClass}`;
             div.id = `die-${index}`;
             div.innerHTML = `${letra} <span class="val">${info.pts > 0 ? info.pts : ''}</span>`;
@@ -194,80 +196,105 @@
 
     function showStarSelector(idx) {
         const selector = document.getElementById('star-selector');
-        selector.innerHTML = "";
-        selector.style.display = "grid";
+        selector.innerHTML = ""; selector.style.display = "grid";
         "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('').forEach(l => {
-            const b = document.createElement('div');
-            b.className = "star-letter"; b.innerText = l;
+            const b = document.createElement('div'); b.className = "star-letter"; b.innerText = l;
             b.onclick = () => { 
                 selector.style.display = "none"; 
                 state.activeDiceData[idx].fijada = l;
+                state.history.starLog.push(l); // Guardar para resumen
                 const el = document.getElementById(`die-${idx}`);
                 el.innerHTML = `${l} <span class="val">★</span>`;
-                el.className = "die comodin-fijado"; // El comodín activo siempre destaca
+                el.className = "die comodin-fijado";
                 addLetter(idx, l); 
             };
             selector.appendChild(b);
         });
     }
 
-    function addLetter(diceIdx, letra) {
-        state.wordStack.push({ diceIdx, letra });
-        updateDisplay();
-    }
+    function addLetter(diceIdx, letra) { state.wordStack.push({ diceIdx, letra }); updateDisplay(); }
 
     function deleteLast() {
         if (state.wordStack.length === 0) return;
         const last = state.wordStack.pop();
         const die = state.activeDiceData[last.diceIdx];
         if (die.original === '★') {
-            const aunEnPalabra = state.wordStack.some(item => item.diceIdx === last.diceIdx);
-            if (!aunEnPalabra) {
+            if (!state.wordStack.some(item => item.diceIdx === last.diceIdx)) {
                 die.fijada = '★';
                 const el = document.getElementById(`die-${last.diceIdx}`);
                 el.innerHTML = `★ <span class="val"></span>`;
-                el.className = `die ${die.colorClass}`; // Vuelve a su estilo original (blanco o color)
+                el.className = `die ${die.colorClass}`;
             }
         }
         updateDisplay();
     }
 
-    function updateDisplay() {
-        document.getElementById('display-word').innerText = state.wordStack.map(s => s.letra).join('');
+    function updateDisplay() { document.getElementById('display-word').innerText = state.wordStack.map(s => s.letra).join(''); }
+
+    function getLetterInfo(l) {
+        if (l === '★') return { color: 'blanco', pts: 0 };
+        if ("AEORS".includes(l)) return { color: 'rojo', pts: parseInt(document.getElementById('p-rojo').value) };
+        if ("ILNDT".includes(l)) return { color: 'azul', pts: parseInt(document.getElementById('p-azul').value) };
+        if ("CBMP".includes(l)) return { color: 'verde', pts: parseInt(document.getElementById('p-verde').value) };
+        return { color: 'morado', pts: parseInt(document.getElementById('p-mora').value) };
     }
 
     function validateWord() {
         if (state.wordStack.length < 2) return;
         clearInterval(state.timer);
         const time = Math.floor((Date.now() - state.startTime) / 1000);
-        
-        let pVel = 0;
-        if (time < 10) pVel = parseInt(document.getElementById('v-10').value);
-        else if (time < 15) pVel = parseInt(document.getElementById('v-15').value);
-        else if (time < 20) pVel = parseInt(document.getElementById('v-20').value);
-        else if (time < 30) pVel = parseInt(document.getElementById('v-30').value);
-
+        let pVel = (time < 10) ? parseInt(document.getElementById('v-10').value) : (time < 15 ? parseInt(document.getElementById('v-15').value) : (time < 20 ? parseInt(document.getElementById('v-20').value) : (time < 30 ? parseInt(document.getElementById('v-30').value) : 0)));
         let pLetras = state.wordStack.reduce((sum, item) => sum + state.activeDiceData[item.diceIdx].pts, 0);
-        
-        const distinctDiceUsed = new Set(state.wordStack.map(item => item.diceIdx)).size;
-        const N = parseInt(document.getElementById('cfg-n-dice').value);
-        let pSex = (distinctDiceUsed === N) ? parseInt(document.getElementById('pts-sex').value) : 0;
-        
+        let pSex = (new Set(state.wordStack.map(i => i.diceIdx)).size === parseInt(document.getElementById('cfg-n-dice').value)) ? parseInt(document.getElementById('pts-sex').value) : 0;
         let pPab = (state.wordStack.length >= 10) ? parseInt(document.getElementById('pts-pab').value) : 0;
+        
+        const palabraFinal = state.wordStack.map(s => s.letra).join('');
+        state.history.words.push(palabraFinal);
+        const len = palabraFinal.length;
+        state.history.sizes[len] = (state.history.sizes[len] || 0) + 1;
 
         const total = pVel + pLetras + pSex + pPab;
         state.score += total;
-
-        const msg = document.getElementById('msg');
-        msg.innerHTML = `🔥 +${total} PUNTOS <br><small>Letras: ${pLetras} | Tiempo: ${pVel} ${pSex ? '| SEXTUPLETE!' : ''}${pPab ? ' | PALABRÓN!' : ''}</small>`;
-        msg.style.display = "block";
-        
         document.getElementById('ui-score').innerText = state.score;
+        document.getElementById('msg').innerHTML = `✅ +${total} PUNTOS`;
+        document.getElementById('msg').style.display = "block";
+        
         state.round++;
-        const btn = document.getElementById('btn-play');
-        btn.innerText = (state.round > 6) ? "FIN" : "NUEVA RONDA";
-        if (state.round > 6) btn.disabled = true;
-        document.getElementById('ui-round').innerText = (state.round > 6 ? 6 : state.round) + "/6";
+        if(state.round > 6) {
+            document.getElementById('btn-play').innerText = "VER RESUMEN FINAL";
+        } else {
+            document.getElementById('btn-play').innerText = "NUEVA RONDA " + state.round;
+            document.getElementById('ui-round').innerText = state.round + "/6";
+        }
+    }
+
+    function showSummary() {
+        document.getElementById('summary-screen').style.display = 'flex';
+        document.getElementById('final-score').innerText = state.score;
+        
+        // Vocales vs Consonantes
+        let v = 0, c = 0;
+        const allChars = state.history.words.join('');
+        allChars.split('').forEach(char => "AEIOU".includes(char) ? v++ : c++);
+        document.getElementById('final-ling').innerText = `${v}V / ${c}C`;
+
+        // Listas
+        const wList = document.getElementById('final-words-list');
+        wList.innerHTML = state.history.words.map(w => `<li><span>${w}</span> <span>${w.length} letras</span></li>`).join('');
+        
+        const sList = document.getElementById('final-stars-list');
+        sList.innerHTML = state.history.starLog.length ? state.history.starLog.map(l => `<li><span>Comodín usado como:</span> <strong>${l}</strong></li>`).join('') : "<li>No usaste comodines</li>";
+
+        const sizeList = document.getElementById('final-sizes-list');
+        sizeList.innerHTML = Object.entries(state.history.sizes).map(([size, count]) => `<li><span>Tamaño ${size}:</span> <span>${count} vez/veces</span></li>`).join('');
+    }
+
+    function resetGame() {
+        state = { score: 0, round: 1, activeDiceData: [], wordStack: [], startTime: 0, timer: null, history: { words: [], starLog: [], sizes: {} } };
+        document.getElementById('ui-score').innerText = "0";
+        document.getElementById('ui-round').innerText = "1/6";
+        document.getElementById('summary-screen').style.display = 'none';
+        startRound();
     }
 </script>
 </body>
