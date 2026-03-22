@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PALABROS V12 - Valor Comodín</title>
+    <title>PALABROS V14 - Diccionario y Sugerencias</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="diccionario.js"></script>
     <style>
         :root {
             --bg-color: #0f172a; --card-bg: #1e293b; --primary: #f59e0b; --text-color: #f8fafc;
@@ -31,7 +32,10 @@
         .stat-lbl { font-size: 8px; color: #94a3b8; text-transform: uppercase; }
 
         #game-area { flex-grow: 1; width: 100%; max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; padding: 10px; overflow: hidden; }
-        #display-word { min-height: 55px; width: 100%; background: #020617; border: 2px solid #334155; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 900; color: var(--blanco); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+        #display-word { min-height: 55px; width: 100%; background: #020617; border: 2px solid #334155; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 900; color: var(--blanco); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+
+        /* Estilo para las sugerencias post-ronda */
+        #round-sugs { background: rgba(59, 130, 246, 0.1); border: 1px solid var(--azul); border-radius: 8px; padding: 8px; margin-bottom: 10px; font-size: 0.75rem; color: #94a3b8; display: none; line-height: 1.4; }
 
         #dice-scroll-area { flex-grow: 1; width: 100%; overflow-y: auto; padding: 5px; border-radius: 12px; background: rgba(0,0,0,0.1); }
         .dice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; padding-bottom: 15px; }
@@ -107,7 +111,7 @@
 <main id="game-area">
     <div id="display-word"></div>
     <div id="msg"></div>
-    <div id="dice-scroll-area"><div id="dice-container" class="dice-grid"></div></div>
+    <div id="round-sugs"></div> <div id="dice-scroll-area"><div id="dice-container" class="dice-grid"></div></div>
     <div class="controls-container">
         <div class="controls">
             <button class="btn btn-del" onclick="deleteLast()">Borrar</button>
@@ -143,6 +147,11 @@
 <div id="star-selector"></div>
 
 <script>
+    // Fallback por si no existe el archivo diccionario.js
+    if (typeof DICCIONARIO === 'undefined') {
+        var DICCIONARIO = [];
+    }
+
     const setVh = () => { document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`); };
     window.onresize = setVh; setVh();
 
@@ -175,6 +184,7 @@
         const container = document.getElementById('dice-container');
         container.innerHTML = ""; document.getElementById('display-word').innerText = "";
         document.getElementById('msg').style.display = "none";
+        document.getElementById('round-sugs').style.display = "none";
         state.wordStack = [];
 
         let elegidos = [...DADOS_MODEL].sort(() => Math.random() - 0.5).slice(0, N);
@@ -185,7 +195,6 @@
             const div = document.createElement('div');
             div.className = `die ${finalColorClass}`;
             div.id = `die-${index}`;
-            // Muestra el valor del comodín si está configurado
             div.innerHTML = `${letra} <span class="val">${letra === '★' ? (parseInt(document.getElementById('p-star').value) || '') : info.pts}</span>`;
             div.onclick = () => selectDie(index);
             container.appendChild(div);
@@ -199,6 +208,7 @@
     }
 
     function selectDie(idx) {
+        if(state.wordStack.some(i => i.diceIdx === idx)) return; // Evitar usar el mismo dado dos veces
         const die = state.activeDiceData[idx];
         if (die.fijada === '★') showStarSelector(idx);
         else addLetter(idx, die.fijada);
@@ -249,8 +259,43 @@
         return { color: 'morado', pts: parseInt(document.getElementById('p-mora').value) || 5 };
     }
 
+    // Lógica de Sugerencias Post-Ronda
+    function getSugerencias() {
+        let pool = state.activeDiceData.map(d => d.fijada);
+        let posibles = DICCIONARIO.filter(w => {
+            if (w.length < 5) return false;
+            let tempPool = [...pool];
+            return w.split('').every(char => {
+                let index = tempPool.indexOf(char);
+                if (index !== -1) { tempPool.splice(index, 1); return true; }
+                return false;
+            });
+        });
+        
+        posibles.sort((a, b) => b.length - a.length);
+        let glosario = {5:[], 6:[], 7:[], 8:[], 9:[]};
+        posibles.forEach(w => { if(glosario[w.length] && glosario[w.length].length < 2) glosario[w.length].push(w); });
+
+        let html = "<strong>Sugerencias:</strong><br>";
+        let found = false;
+        for(let i=9; i>=5; i--) {
+            if(glosario[i].length > 0) {
+                html += `${i} letras: ${glosario[i].join(', ')}<br>`;
+                found = true;
+            }
+        }
+        return found ? html : "No se hallaron palabras largas con estos dados.";
+    }
+
     function validateWord() {
-        if (state.wordStack.length < 2) return;
+        const word = state.wordStack.map(s => s.letra).join('');
+        if (word.length < 1) return; // Permitir 1 letra
+
+        // VALIDACIÓN CON DICCIONARIO
+        if (DICCIONARIO.length > 0 && !DICCIONARIO.includes(word)) {
+            if (!confirm(`La palabra "${word}" no figura en el diccionario. ¿Aceptarla igualmente?`)) return;
+        }
+
         clearInterval(state.timer);
         const time = Math.floor((Date.now() - state.startTime) / 1000);
         
@@ -265,7 +310,7 @@
             return sum + (die.original === '★' ? (parseInt(document.getElementById('p-star').value) || 0) : die.pts);
         }, 0);
 
-        let pSex = (new Set(state.wordStack.map(i => i.diceIdx)).size === parseInt(document.getElementById('cfg-n-dice').value)) ? parseInt(document.getElementById('pts-sex').value) : 0;
+        let pSex = (state.wordStack.length === state.activeDiceData.length) ? parseInt(document.getElementById('pts-sex').value) : 0;
         let pPab = (state.wordStack.length >= 10) ? parseInt(document.getElementById('pts-pab').value) : 0;
         
         state.totals.letters += pLetras;
@@ -274,13 +319,18 @@
 
         const total = pVel + pLetras + pSex + pPab;
         state.score += total;
-        state.history.words.push(state.wordStack.map(s => s.letra).join(''));
+        state.history.words.push(word);
         state.history.speedDetail.push({ round: state.round, time: time, pts: pVel, tag: tag });
 
         const msg = document.getElementById('msg');
         msg.innerHTML = `✅ +${total} PUNTOS<br><small>Letras: ${pLetras} | Tiempo: ${pVel} (${tag})${pSex ? ' | 🔥 SEXT!' : ''}${pPab ? ' | 🏆 PAB!' : ''}</small>`;
         msg.style.display = "block";
         document.getElementById('ui-score').innerText = state.score;
+
+        // Mostrar sugerencias de esta ronda
+        const sugArea = document.getElementById('round-sugs');
+        sugArea.innerHTML = getSugerencias();
+        sugArea.style.display = "block";
 
         if(state.round === 6) { document.getElementById('btn-play').innerText = "VER RESUMEN FINAL"; }
         else { state.round++; document.getElementById('btn-play').innerText = "NUEVA RONDA " + state.round; document.getElementById('ui-round').innerText = state.round + "/6"; }
@@ -310,6 +360,7 @@
                   history: { words: [], starLog: [], sizes: {}, speedDetail: [] } };
         document.getElementById('ui-score').innerText = "0"; document.getElementById('ui-round').innerText = "1/6";
         document.getElementById('summary-screen').style.display = 'none';
+        document.getElementById('round-sugs').style.display = "none";
         startRound();
     }
 </script>
