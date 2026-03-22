@@ -2,66 +2,69 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>6 PALABRAS 6 - Edición Libre</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PALABROS - El Juego de Dados</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #0f172a; --card-bg: #1e293b; --primary: #f59e0b; --text-color: #f8fafc;
             --rojo: #ef4444; --azul: #3b82f6; --verde: #10b981; --morado: #a855f7; --blanco: #ffffff;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-bottom: 50px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; touch-action: manipulation; }
+        body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow: hidden; }
         
-        /* PANEL CONFIG */
-        #config-panel {
-            position: fixed; top: 0; right: -320px; width: 300px; height: 100%;
-            background: var(--card-bg); z-index: 100; padding: 20px; transition: 0.3s; overflow-y: auto; box-shadow: -10px 0 20px rgba(0,0,0,0.5);
-        }
+        header { width: 100%; padding: 15px; text-align: center; background: #1e293b; border-bottom: 3px solid var(--primary); }
+        h1 { font-weight: 900; letter-spacing: 4px; font-size: 1.8rem; color: var(--primary); text-transform: uppercase; }
+
+        #config-panel { position: fixed; top: 0; right: -320px; width: 300px; height: 100%; background: var(--card-bg); z-index: 1000; padding: 20px; transition: 0.3s; }
         #config-panel.open { right: 0; }
-        .config-btn { position: fixed; top: 15px; right: 15px; z-index: 101; background: #1e293b; border: 1px solid var(--primary); border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; }
-        .input-group { margin-bottom: 12px; }
-        label { display: block; font-size: 11px; color: var(--primary); margin-bottom: 3px; text-transform: uppercase; font-weight: 700; }
-        input, select { width: 100%; padding: 10px; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 8px; }
+        .config-btn { position: fixed; top: 15px; right: 15px; z-index: 1001; background: #1e293b; border: 1px solid var(--primary); border-radius: 50%; width: 45px; height: 45px; font-size: 20px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        
+        .stats { display: flex; justify-content: space-around; width: 95%; max-width: 500px; margin: 10px 0; background: var(--card-bg); padding: 10px; border-radius: 15px; }
+        .stat-val { font-weight: 900; font-size: 1.2rem; display: block; color: var(--primary); }
+        .stat-lbl { font-size: 9px; color: #94a3b8; text-transform: uppercase; }
 
-        /* HEADER Y STATS */
-        header { width: 100%; padding: 20px; text-align: center; background: #1e293b; border-bottom: 3px solid var(--primary); margin-bottom: 10px; }
-        h1 { font-weight: 900; letter-spacing: 2px; font-size: 1.8rem; color: var(--primary); }
-        .stats { display: flex; justify-content: space-around; width: 95%; max-width: 500px; margin: 10px 0; background: var(--card-bg); padding: 15px; border-radius: 20px; border: 1px solid #334155; }
-        .stat-box { text-align: center; flex: 1; }
-        .stat-val { font-weight: 900; font-size: 1.4rem; display: block; color: var(--blanco); }
-        .stat-lbl { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+        #game-area { width: 95%; max-width: 450px; display: flex; flex-direction: column; gap: 15px; align-items: center; flex: 1; justify-content: center; }
+        
+        #display-word-container {
+            width: 100%; position: relative; display: flex; align-items: center; gap: 10px;
+        }
+        #display-word {
+            min-height: 70px; flex-grow: 1; background: #020617; border: 2px solid #334155;
+            border-radius: 15px; display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; font-weight: 900; color: var(--blanco); letter-spacing: 2px; text-transform: uppercase;
+        }
 
-        /* JUEGO */
-        #main-game { width: 95%; max-width: 550px; display: flex; flex-direction: column; gap: 20px; align-items: center; margin-top: 10px; }
-        .dice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 100%; }
+        .dice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; }
+        
+        @keyframes shake {
+            0% { transform: rotate(0deg); } 25% { transform: rotate(5deg); } 50% { transform: rotate(-5deg); } 75% { transform: rotate(5deg); } 100% { transform: rotate(0deg); }
+        }
+        .shaking { animation: shake 0.3s ease-in-out; }
+
         .die {
-            aspect-ratio: 1/1; border-radius: 16px; display: flex; align-items: center; justify-content: center;
-            font-size: 2.5rem; font-weight: 900; position: relative; box-shadow: 0 8px 0 rgba(0,0,0,0.3);
-            transition: transform 0.2s;
+            aspect-ratio: 1/1; border-radius: 18px; display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; font-weight: 900; position: relative; box-shadow: 0 6px 0 rgba(0,0,0,0.4);
+            cursor: pointer; user-select: none; transition: transform 0.1s;
         }
-        .die.comodin { color: #ff0000; text-shadow: 0 0 10px rgba(255,0,0,0.3); }
-        .die .val { position: absolute; bottom: 8px; right: 10px; font-size: 0.8rem; opacity: 0.8; }
+        .die:active { transform: scale(0.95) translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.4); }
+        .die.comodin { color: #ff0000; }
+        .die .val { position: absolute; bottom: 5px; right: 10px; font-size: 0.8rem; font-weight: 700; }
 
-        #word-input {
-            width: 100%; padding: 20px; border-radius: 15px; border: 3px solid #334155;
-            background: #1e293b; color: white; font-size: 1.6rem; text-align: center; text-transform: uppercase;
-            font-weight: 700; transition: 0.3s;
+        .controls { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; width: 100%; margin-top: 10px; }
+        .btn { padding: 18px; border: none; border-radius: 15px; font-weight: 900; text-transform: uppercase; cursor: pointer; font-size: 1rem; }
+        .btn-del { background: #334155; color: white; }
+        .btn-main { background: var(--primary); color: #000; box-shadow: 0 4px 0 #b45309; }
+
+        #star-selector {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.98);
+            z-index: 2000; display: none; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 15px; align-content: center;
         }
-        #word-input:focus { border-color: var(--primary); outline: none; background: #0f172a; }
-        .btn {
-            width: 100%; padding: 18px; border: none; border-radius: 15px; font-weight: 900;
-            text-transform: uppercase; cursor: pointer; background: var(--primary); font-size: 1.1rem;
-            box-shadow: 0 4px 0 #b45309; transition: 0.1s;
-        }
-        .btn:active { transform: translateY(4px); box-shadow: none; }
-        .btn:disabled { background: #475569; box-shadow: none; cursor: not-allowed; opacity: 0.5; }
+        .star-letter { background: var(--primary); color: #000; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-weight: 900; border-radius: 12px; font-size: 1.4rem; }
 
-        #msg { padding: 15px; text-align: center; font-weight: 700; border-radius: 12px; width: 100%; display: none; line-height: 1.4; }
-        .error { background: #fee2e2; color: #991b1b; display: block !important; }
-        .success { background: #dcfce7; color: #166534; display: block !important; }
+        #msg { padding: 12px; text-align: center; border-radius: 12px; width: 100%; display: none; font-weight: 700; }
+        .success { background: #10b981; color: white; display: block !important; }
 
-        /* COLORES DADOS */
         .c-rojo { background: var(--rojo); color: white; }
         .c-azul { background: var(--azul); color: white; }
         .c-verde { background: var(--verde); color: white; }
@@ -74,194 +77,180 @@
 <button class="config-btn" onclick="document.getElementById('config-panel').classList.toggle('open')">⚙️</button>
 
 <div id="config-panel">
-    <h2 style="color:var(--primary); margin-bottom:15px">REGLAS</h2>
-    <label>Estilo Dados</label>
-    <select id="cfg-style" class="input-group">
-        <option value="color">Multicolor</option>
-        <option value="blanco">Clásico (Blanco)</option>
-    </select>
-    <div class="input-group"><label>Puntos 1º puesto</label><input type="number" id="pts-v1" value="10"></div>
-    <div class="input-group"><label>Bono Palabrón (10+)</label><input type="number" id="pts-pab" value="10"></div>
+    <h2 style="color:var(--primary); margin-bottom:15px">AJUSTES</h2>
+    <div class="input-group"><label>Dados por Tirada (N)</label><input type="number" id="cfg-n-dice" value="6" min="1" max="11"></div>
     <div class="input-group"><label>Bono Sextuplete</label><input type="number" id="pts-sex" value="20"></div>
-    <p style="font-size:10px; color:var(--primary); margin: 15px 0 5px">VALORES LETRAS</p>
-    <div class="input-group"><label>🔴 Rojo (A,E,O,R,S)</label><input type="number" id="p-rojo" value="1"></div>
-    <div class="input-group"><label>🔵 Azul (I,L,D,N,T)</label><input type="number" id="p-azul" value="2"></div>
-    <div class="input-group"><label>🟢 Verde (C,B,M,P)</label><input type="number" id="p-verde" value="3"></div>
-    <div class="input-group"><label>🟣 Morado (Difíciles/U)</label><input type="number" id="p-mora" value="5"></div>
-    <button class="btn" style="padding:10px; font-size:0.8rem" onclick="document.getElementById('config-panel').classList.remove('open')">CERRAR Y GUARDAR</button>
+    <div class="input-group"><label>Bono Palabrón (10+)</label><input type="number" id="pts-pab" value="10"></div>
+    <button class="btn btn-main" style="width:100%" onclick="document.getElementById('config-panel').classList.remove('open')">ACEPTAR</button>
 </div>
 
-<header><h1>6 PALABRAS 6</h1></header>
+<header><h1>PALABROS</h1></header>
 
 <div class="stats">
-    <div class="stat-box"><span class="stat-lbl">RONDA</span><span id="ui-round" class="stat-val">1/6</span></div>
-    <div class="stat-box"><span class="stat-lbl">PUNTOS</span><span id="ui-score" class="stat-val">0</span></div>
-    <div class="stat-box"><span class="stat-lbl">TIEMPO</span><span id="ui-timer" class="stat-val">0s</span></div>
+    <div class="stat-box"><span class="stat-lbl">Ronda</span><span id="ui-round" class="stat-val">1/6</span></div>
+    <div class="stat-box"><span class="stat-lbl">Puntos</span><span id="ui-score" class="stat-val">0</span></div>
+    <div class="stat-box"><span class="stat-lbl">Reloj</span><span id="ui-timer" class="stat-val">0s</span></div>
 </div>
 
-<main id="main-game">
-    <div id="dice-container" class="dice-grid"></div>
+<main id="game-area">
+    <div id="display-word-container">
+        <div id="display-word"></div>
+    </div>
     <div id="msg"></div>
-    <input type="text" id="word-input" placeholder="¡Lanza los dados!" disabled>
-    <button id="btn-play" class="btn" onclick="handleMainAction()">LANZAR DADOS</button>
+    <div id="dice-container" class="dice-grid"></div>
+    
+    <div class="controls">
+        <button class="btn btn-del" onclick="deleteLast()">Borrar</button>
+        <button id="btn-play" class="btn btn-main" onclick="handleAction()">Lanzar Dados</button>
+    </div>
 </main>
 
+<div id="star-selector"></div>
+
 <script>
-    const DADOS = [
+    const DADOS_MODEL = [
         {c:['A','E','O','R','S','★']}, {c:['A','E','O','R','S','★']}, {c:['A','E','O','R','S','★']},
         {c:['A','E','O','L','D','★']}, {c:['A','E','O','L','D','★']}, {c:['A','E','I','N','T','★']},
         {c:['I','N','T','C','B','★']}, {c:['I','N','T','C','B','★']}, {c:['I','L','D','C','M','★']},
         {c:['U','P','M','F','G','★']}, {c:['U','P','H','J','Ñ','★']}, {c:['U','U','V','Q','Z','★']}
     ];
 
-    let state = { score: 0, round: 1, phase: 1, pool: [], activeDice: [], startTime: 0, timer: null };
+    let state = {
+        score: 0, round: 1, phase: 1, bolsa: [], usadosAnterior: [], activeDiceData: [], wordStack: [], startTime: 0, timer: null
+    };
 
-    function getLetterData(l) {
-        if (l === '★') return { c: 'blanco', p: 0 };
-        if ("AEORS".includes(l)) return { c: 'rojo', p: parseInt(document.getElementById('p-rojo').value) };
-        if ("ILNDT".includes(l)) return { c: 'azul', p: parseInt(document.getElementById('p-azul').value) };
-        if ("CBMP".includes(l)) return { c: 'verde', p: parseInt(document.getElementById('p-verde').value) };
-        if ("UFGHJÑVQZU".includes(l)) return { c: 'morado', p: parseInt(document.getElementById('p-mora').value) };
-        return { c: 'blanco', p: 0 };
+    function getLetterInfo(l) {
+        if (l === '★') return { color: 'blanco', pts: 0 };
+        if ("AEORS".includes(l)) return { color: 'rojo', pts: 1 };
+        if ("ILNDT".includes(l)) return { color: 'azul', pts: 2 };
+        if ("CBMP".includes(l)) return { color: 'verde', pts: 3 };
+        if ("UFGHJÑVQZU".includes(l)) return { color: 'morado', pts: 5 };
+        return { color: 'blanco', pts: 0 };
     }
 
-    function handleMainAction() {
+    function handleAction() {
         const btn = document.getElementById('btn-play');
-        if (btn.innerText.includes("LANZAR") || btn.innerText.includes("SIGUIENTE") || btn.innerText.includes("NUEVA")) {
-            startRound();
-        } else {
-            validateAndScore();
-        }
+        if (btn.innerText.includes("LANZAR") || btn.innerText.includes("RONDA") || btn.innerText.includes("NUEVA")) startRound();
+        else validateWord();
     }
 
     function startRound() {
+        const N = parseInt(document.getElementById('cfg-n-dice').value);
         const container = document.getElementById('dice-container');
         container.innerHTML = "";
-        const msg = document.getElementById('msg');
-        msg.style.display = "none";
-        document.getElementById('word-input').value = "";
-        document.getElementById('word-input').disabled = false;
-        document.getElementById('word-input').focus();
+        container.classList.add('shaking');
+        setTimeout(() => container.classList.remove('shaking'), 300);
+        
+        document.getElementById('display-word').innerText = "";
+        document.getElementById('msg').style.display = "none";
+        state.wordStack = [];
 
-        // Lógica de bolsa (6 y 6)
+        let elegidos = [];
         if (state.phase === 1) {
-            state.pool = [...DADOS].sort(() => Math.random() - 0.5);
-            state.activeDice = state.pool.slice(0, 6).map(d => d.c[Math.floor(Math.random()*6)]);
+            let mezclada = [...DADOS_MODEL].sort(() => Math.random() - 0.5);
+            elegidos = mezclada.slice(0, N);
+            state.bolsa = mezclada.slice(N);
+            state.usadosAnterior = elegidos;
         } else {
-            state.activeDice = state.pool.slice(6).map(d => d.c[Math.floor(Math.random()*6)]);
+            elegidos = [...state.bolsa];
+            if (elegidos.length < N) {
+                const faltan = N - elegidos.length;
+                const relleno = [...state.usadosAnterior].sort(() => Math.random() - 0.5).slice(0, faltan);
+                elegidos = elegidos.concat(relleno);
+            }
         }
 
-        const useColors = document.getElementById('cfg-style').value === 'color';
-        state.activeDice.forEach(l => {
-            const data = getLetterData(l);
+        state.activeDiceData = elegidos.map((d, index) => {
+            const letra = d.c[Math.floor(Math.random() * 6)];
+            const info = getLetterInfo(letra);
             const div = document.createElement('div');
-            div.className = `die ${useColors ? 'c-'+data.c : 'c-blanco'} ${l==='★'?'comodin':''}`;
-            div.innerHTML = `${l} <span class="val">${data.p > 0 ? data.p : ''}</span>`;
+            div.className = `die c-${info.color} ${letra === '★' ? 'comodin' : ''}`;
+            div.id = `die-${index}`;
+            div.innerHTML = `${letra} <span class="val">${info.pts > 0 ? info.pts : ''}</span>`;
+            div.onclick = () => selectDie(index);
             container.appendChild(div);
+            return { original: letra, pts: info.pts };
         });
 
         state.startTime = Date.now();
+        clearInterval(state.timer);
         state.timer = setInterval(() => {
-            document.getElementById('ui-timer').innerText = Math.floor((Date.now()-state.startTime)/1000) + "s";
+            document.getElementById('ui-timer').innerText = Math.floor((Date.now() - state.startTime) / 1000) + "s";
         }, 1000);
-        
-        document.getElementById('btn-play').innerText = "¡ENVIAR PALABRA!";
+        document.getElementById('btn-play').innerText = "¡LISTO!";
     }
 
-    function validateAndScore() {
-        let word = document.getElementById('word-input').value.toUpperCase().trim();
-        word = word.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Quitar acentos
-        
-        if (word.length < 2) {
-            alert("Escribe una palabra de al menos 2 letras");
-            return;
+    function selectDie(idx) {
+        if (state.activeDiceData[idx].original === '★') {
+            showStarSelector(idx);
+        } else {
+            addLetter(idx, state.activeDiceData[idx].original);
         }
+    }
 
-        // --- LÓGICA DE DADOS Y COMODINES ---
-        let available = [...state.activeDice];
-        let basicLetters = available.filter(x => x !== '★');
-        let comodinesCount = available.filter(x => x === '★').length;
-        
-        let wordLetters = word.split('');
-        let usedDiceIndices = new Set();
-        let unknownLetters = new Set();
-
-        // 1. Ver qué letras de la palabra NO están en los dados básicos
-        wordLetters.forEach(char => {
-            if (basicLetters.includes(char)) {
-                // Letra encontrada en un dado
-                let idx = available.indexOf(char);
-                usedDiceIndices.add(idx);
-            } else {
-                // Letra no está, requiere comodín
-                unknownLetters.add(char);
-            }
+    function showStarSelector(idx) {
+        const selector = document.getElementById('star-selector');
+        selector.innerHTML = "";
+        selector.style.display = "grid";
+        "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('').forEach(l => {
+            const b = document.createElement('div');
+            b.className = "star-letter";
+            b.innerText = l;
+            b.onclick = () => { selector.style.display = "none"; addLetter(idx, l); };
+            selector.appendChild(b);
         });
+    }
 
-        // 2. Comprobar si hay suficientes comodines para esas letras extra
-        if (unknownLetters.size > comodinesCount) {
-            const msg = document.getElementById('msg');
-            msg.innerText = `❌ No tienes suficientes comodines para: ${[...unknownLetters].join(', ')}`;
-            msg.className = "error";
-            return;
-        }
+    function addLetter(diceIdx, letraElegida) {
+        state.wordStack.push({ diceIdx, letraElegida });
+        updateDisplay();
+    }
 
-        // 3. Marcar los dados de estrella usados por los comodines
-        let starsNeeded = unknownLetters.size;
-        let starsFound = 0;
-        available.forEach((l, i) => {
-            if (l === '★' && starsFound < starsNeeded) {
-                usedDiceIndices.add(i);
-                starsFound++;
-            }
-        });
+    function deleteLast() {
+        state.wordStack.pop();
+        updateDisplay();
+    }
 
-        // --- CÁLCULO DE PUNTUACIÓN ---
+    function updateDisplay() {
+        document.getElementById('display-word').innerText = state.wordStack.map(s => s.letraElegida).join('');
+    }
+
+    function validateWord() {
+        if (state.wordStack.length < 2) return;
         clearInterval(state.timer);
-        let time = Math.floor((Date.now() - state.startTime)/1000);
+        const time = Math.floor((Date.now() - state.startTime) / 1000);
         
-        // Tiempo: <10s (1º), <15s (2º), <20s (3º)
-        const v1 = parseInt(document.getElementById('pts-v1').value);
-        let pVel = (time < 10) ? v1 : (time < 15 ? 5 : (time < 20 ? 2 : 0));
+        let pVel = (time < 10) ? 10 : (time < 15 ? 5 : (time < 20 ? 2 : 0));
+        
+        // Sumamos los puntos de cada letra según el dado del que vino
+        let pLetras = state.wordStack.reduce((sum, item) => sum + state.activeDiceData[item.diceIdx].pts, 0);
+        
+        // Sextuplete: ¿Cuántos dados DISTINTOS se han usado?
+        const distinctDiceUsed = new Set(state.wordStack.map(item => item.diceIdx)).size;
+        const N = parseInt(document.getElementById('cfg-n-dice').value);
+        let pSex = (distinctDiceUsed === N) ? parseInt(document.getElementById('pts-sex').value) : 0;
+        
+        // Bono Palabrón (Longitud de la palabra)
+        let pPab = (state.wordStack.length >= 10) ? parseInt(document.getElementById('pts-pab').value) : 0;
 
-        // Puntos por letras (cada letra suma según su color de dado original)
-        let pLetras = 0;
-        wordLetters.forEach(l => {
-            if (basicLetters.includes(l)) {
-                pLetras += getLetterData(l).p;
-            }
-            // Los comodines valen 0 (blancos), así que no sumamos nada si la letra no estaba.
-        });
+        const total = pVel + pLetras + pSex + pPab;
+        state.score += total;
 
-        let pPab = (word.length >= 10) ? parseInt(document.getElementById('pts-pab').value) : 0;
-        let pSex = (usedDiceIndices.size === 6) ? parseInt(document.getElementById('pts-sex').value) : 0;
-
-        let totalRonda = pVel + pLetras + pPab + pSex;
-        state.score += totalRonda;
-
-        // Feedback
         const msg = document.getElementById('msg');
-        msg.innerHTML = `✅ ¡PALABRA ACEPTADA! +${totalRonda} pts<br>
-        <small>Vel: ${pVel} | Letras: ${pLetras}${pPab ? ' | Bono: '+pPab : ''}${pSex ? ' | SEXTUPLETE!':''}</small>`;
+        msg.innerHTML = `🔥 +${total} PUNTOS <br><small>Letras: ${pLetras} | Tiempo: ${pVel} ${pSex ? '| SEXTUPLETE!' : ''}</small>`;
         msg.className = "success";
         
         document.getElementById('ui-score').innerText = state.score;
-        document.getElementById('word-input').disabled = true;
-
-        // Gestión de Turnos
         const btn = document.getElementById('btn-play');
+
         if (state.phase === 1) {
             state.phase = 2;
-            btn.innerText = "SIGUIENTE RONDA (SOBRANTES)";
+            btn.innerText = "SIGUIENTE RONDA";
         } else {
             state.phase = 1;
             state.round++;
-            if (state.round > 6) {
-                btn.innerText = "FIN DE PARTIDA";
-                btn.disabled = true;
-            } else {
-                btn.innerText = "NUEVA PALABRA (BOLSA)";
-            }
+            btn.innerText = (state.round > 6) ? "FIN" : "NUEVA PALABRA";
+            if (state.round > 6) btn.disabled = true;
         }
         document.getElementById('ui-round').innerText = (state.round > 6 ? 6 : state.round) + "/6";
     }
