@@ -311,10 +311,10 @@ function selectDie(idx) {
         const time = Math.floor((Date.now() - state.startTime) / 1000);
         
         let pVel = 0, tag = "Lento";
-        if (time < 10) { pVel = parseInt(document.getElementById('v-10').value); tag = "< 10s"; }
-        else if (time < 15) { pVel = parseInt(document.getElementById('v-15').value); tag = "< 15s"; }
-        else if (time < 20) { pVel = parseInt(document.getElementById('v-20').value); tag = "< 20s"; }
-        else if (time < 30) { pVel = parseInt(document.getElementById('v-30').value); tag = "< 30s"; }
+        if (time < 11) { pVel = parseInt(document.getElementById('v-10').value); tag = "< 10s"; }
+        else if (time < 16) { pVel = parseInt(document.getElementById('v-15').value); tag = "< 15s"; }
+        else if (time < 21) { pVel = parseInt(document.getElementById('v-20').value); tag = "< 20s"; }
+        else if (time < 31) { pVel = parseInt(document.getElementById('v-30').value); tag = "< 30s"; }
 
         let pLetras = state.wordStack.reduce((sum, item) => {
             const die = state.activeDiceData[item.diceIdx];
@@ -328,13 +328,17 @@ function selectDie(idx) {
         state.totals.speed += pVel;
         state.totals.bonuses += (pSex + pPab);
 
-        const total = pVel + pLetras + pSex + pPab;
+        let total = pVel + pLetras + pSex + pPab;
+        if (pVel == 0)
+        {
+            total=0;
+        }
         state.score += total;
         state.history.words.push(word);
         state.history.speedDetail.push({ round: state.round, time: time, pts: pVel, tag: tag });
 
         const msg = document.getElementById('msg');
-        msg.innerHTML = `✅ +${total} PUNTOS<br><small>Letras: ${pLetras} | Tiempo: ${pVel} (${tag})${pSex ? ' | 🔥 SEXT!' : ''}${pPab ? ' | 🏆 PAB!' : ''}</small>`;
+        msg.innerHTML = `✅ +${total} PUNTOS<br><small>Letras: ${pLetras} | Tiempo: ${pVel} (${tag})${pSex ? ' | 🔥 SEXT!' : ''}${pPab ? ' | 🏆 PAB!' : ''}</small>`+(total==0)?`0 puntos por lento`:``;
         msg.style.display = "block";
         document.getElementById('ui-score').innerText = state.score;
 
