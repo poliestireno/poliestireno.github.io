@@ -338,7 +338,7 @@ function selectDie(idx) {
         state.history.speedDetail.push({ round: state.round, time: time, pts: pVel, tag: tag });
 
         const msg = document.getElementById('msg');
-        msg.innerHTML = `✅ +${total} PUNTOS<br><small>Letras: ${pLetras} | Tiempo: ${pVel} (${tag})${pSex ? ' | 🔥 SEXT!' : ''}${pPab ? ' | 🏆 PAB!' : ''}</small>`+(total==0)?`0 puntos por lento`:``;
+        msg.innerHTML = `✅ +${total} PUNTOS<br><small>Letras: ${pLetras} | Tiempo: ${pVel} (${tag})${pSex ? ' | 🔥 SEXT!' : ''}${pPab ? ' | 🏆 PAB!' : ''}</small>`+((total==0)?`0 puntos por lento`:``);
         msg.style.display = "block";
         document.getElementById('ui-score').innerText = state.score;
 
