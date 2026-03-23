@@ -299,17 +299,29 @@ function selectDie(idx) {
     }
 
     function validateWord() {
-        const word = state.wordStack.map(s => s.letra).join('');
-        if (word.length < 1) return; // Permite 1 sola letra
+// 1. PARAMOS EL TIEMPO NADA MÁS PULSAR EL BOTÓN
+        clearInterval(state.timer); 
+        const time = Math.floor((Date.now() - state.startTime) / 1000);
 
-        // Validación con diccionario real
-        if (DICCIONARIO.length > 0 && !DICCIONARIO.includes(word)) {
-            if (!confirm(`La palabra "${word}" no está en el diccionario.\n¿Aceptar de todos modos?`)) return;
+        const word = state.wordStack.map(s => s.letra).join('');
+        if (word.length < 1) {
+            // Si la palabra está vacía, reiniciamos el timer para que no se quede muerto
+            state.timer = setInterval(() => { 
+                document.getElementById('ui-timer').innerText = Math.floor((Date.now() - state.startTime) / 1000) + "s"; 
+            }, 1000);
+            return; 
         }
 
-        clearInterval(state.timer);
-        const time = Math.floor((Date.now() - state.startTime) / 1000);
-        
+        // 2. VALIDACIÓN (El tiempo ya está pausado aquí)
+        if (DICCIONARIO.length > 0 && !DICCIONARIO.includes(word)) {
+            if (!confirm(`La palabra "${word}" no está en el diccionario.\n¿Aceptar de todos modos?`)) {
+                // Si cancelas, volvemos a arrancar el timer
+                state.timer = setInterval(() => { 
+                    document.getElementById('ui-timer').innerText = Math.floor((Date.now() - state.startTime) / 1000) + "s"; 
+                }, 1000);
+                return;
+            }
+        }
         let pVel = 0, tag = "Lento";
         if (time < 11) { pVel = parseInt(document.getElementById('v-10').value); tag = "< 10s"; }
         else if (time < 16) { pVel = parseInt(document.getElementById('v-15').value); tag = "< 15s"; }
@@ -338,7 +350,7 @@ function selectDie(idx) {
         state.history.speedDetail.push({ round: state.round, time: time, pts: pVel, tag: tag });
 
         const msg = document.getElementById('msg');
-        msg.innerHTML = `✅ +${total} PUNTOS<br><small>Letras: ${pLetras} | Tiempo: ${pVel} (${tag})${pSex ? ' | 🔥 SEXT!' : ''}${pPab ? ' | 🏆 PAB!' : ''}</small>`+((total==0)?`0 puntos por lento`:``);
+        msg.innerHTML = `✅ +${total} PUNTOS<br><small>Letras: ${pLetras} | Tiempo: ${pVel} (${tag})${pSex ? ' | 🔥 SEXT!' : ''}${pPab ? ' | 🏆 PAB!' : ''}</small>`+((total==0)?` 0 puntos por ultim@`:``);
         msg.style.display = "block";
         document.getElementById('ui-score').innerText = state.score;
 
