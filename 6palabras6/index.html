@@ -353,7 +353,7 @@ function selectDie(idx) {
         state.history.speedDetail.push({ round: state.round, time: time, pts: pVel, tag: tag });
 
         const msg = document.getElementById('msg');
-        msg.innerHTML = `✅ +${total} PUNTOS<br><small>Letras: ${pLetras} | Tiempo: ${pVel} (${tag})${pSex ? ' | 🔥 PLENO!: '+pSex : ''}${pPab ? ' | 🏆 PALABRÓN!: '+pPab : ''}</small>`+((total==0)?`| 0 puntos por últim@`:``);
+        msg.innerHTML = `✅ +${total} PUNTOS<br><small>Letras: ${pLetras} | Tiempo: ${pVel} (${tag})${pSex ? ' | 🔥 Pleno: '+pSex : ''}${pPab ? ' | 🏆 Palabrón: '+pPab : ''}</small>`+((total==0)?`| 0 puntos por últim@`:``);
         msg.style.display = "block";
         document.getElementById('ui-score').innerText = state.score;
 
