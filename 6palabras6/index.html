@@ -335,12 +335,6 @@ function selectDie(idx) {
 
         let pSex = (new Set(state.wordStack.map(i => i.diceIdx)).size === parseInt(document.getElementById('cfg-n-dice').value)) ? parseInt(document.getElementById('pts-sex').value) : 0;
         let pPab = (state.wordStack.length >= 10) ? parseInt(document.getElementById('pts-pab').value) : 0;
-        
-        state.totals.letters += pLetras;
-        state.totals.speed += pVel;
-        state.totals.bonuses += (pSex + pPab);
-
-        let total = pVel + pLetras + pSex + pPab;
         if (pVel == 0)
         {
             total=0;
@@ -348,7 +342,13 @@ function selectDie(idx) {
             pLetras=0; 
             pSex=0; 
             pPab=0;
-        }
+        }        
+        state.totals.letters += pLetras;
+        state.totals.speed += pVel;
+        state.totals.bonuses += (pSex + pPab);
+
+        let total = pVel + pLetras + pSex + pPab;
+        
         state.score += total;
         state.history.words.push(word);
         state.history.speedDetail.push({ round: state.round, time: time, pts: pVel, tag: tag });
