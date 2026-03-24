@@ -83,8 +83,8 @@
     <div class="input-group"><label>Dados (N)</label><input type="number" id="cfg-n-dice" value="6"></div>
     <hr>
     <h3>Bonos</h3>
-    <div class="input-group"><label>Sextuplete</label><input type="number" id="pts-sex" value="20"></div>
-    <div class="input-group"><label>Palabrón (10+)</label><input type="number" id="pts-pab" value="10"></div>
+    <div class="input-group"><label>Pleno</label><input type="number" id="pts-sex" value="10"></div>
+    <div class="input-group"><label>Palabrón (>6)</label><input type="number" id="pts-pab" value="5"></div>
     <hr>
     <h3>Puntos</h3>
     <div class="input-group"><label>🔴 Rojo</label><input type="number" id="p-rojo" value="2"></div>
@@ -334,7 +334,7 @@ function selectDie(idx) {
         }, 0);
 
         let pSex = (new Set(state.wordStack.map(i => i.diceIdx)).size === parseInt(document.getElementById('cfg-n-dice').value)) ? parseInt(document.getElementById('pts-sex').value) : 0;
-        let pPab = (state.wordStack.length >= 10) ? parseInt(document.getElementById('pts-pab').value) : 0;
+        let pPab = (state.wordStack.length >= 7) ? parseInt(document.getElementById('pts-pab').value) : 0;
         if (pVel == 0)
         {
             pVel=0; 
@@ -353,7 +353,7 @@ function selectDie(idx) {
         state.history.speedDetail.push({ round: state.round, time: time, pts: pVel, tag: tag });
 
         const msg = document.getElementById('msg');
-        msg.innerHTML = `✅ +${total} PUNTOS<br><small>Letras: ${pLetras} | Tiempo: ${pVel} (${tag})${pSex ? ' | 🔥 SEXT!' : ''}${pPab ? ' | 🏆 PAB!' : ''}</small>`+((total==0)?`| 0 puntos por últim@`:``);
+        msg.innerHTML = `✅ +${total} PUNTOS<br><small>Letras: ${pLetras} | Tiempo: ${pVel} (${tag})${pSex ? ' | 🔥 PLENO!' : ''}${pPab ? ' | 🏆 PALABRÓN!' : ''}</small>`+((total==0)?`| 0 puntos por últim@`:``);
         msg.style.display = "block";
         document.getElementById('ui-score').innerText = state.score;
 
